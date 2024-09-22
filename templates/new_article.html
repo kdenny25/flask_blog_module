@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+{% endblock %}
+{% block content %}
+<div class="p-4 sm:ml-64">
+    <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
+        <div class="inline-flex items-center">
+            <p class="ml-4 text-4xl font-bold">Your Articles</p>
+        </div>
+        <div class="inline-flex items-center pr-4">
+            <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
+        </div>
+    </div>
+
+
+    <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="/articles/drafts" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Drafts</a>
+            </li>
+            <li class="me-2">
+                <a href="/articles/published" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Published</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
+        <div id="example"></div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+   <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
+    <script>
+        var editor = new FroalaEditor('#example');
+    </script>
+{% endblock %}

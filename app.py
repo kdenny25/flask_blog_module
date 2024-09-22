@@ -1,4 +1,5 @@
 from flask import Blueprint, Flask, request, render_template, redirect, session, jsonify, flash
+from flask_rollup import Bundle
 from flask_wtf.csrf import CSRFProtect
 from dotenv import dotenv_values
 import os
@@ -33,9 +34,20 @@ else:
     ...
 
 @app.route('/')
-def hello_world():  # put application's code here
+def news_page():  # put application's code here
     return render_template('news_page.html')
 
+@app.route('/articles/drafts')
+def posts_drafts():
+    return render_template('articles_drafts.html')
+
+@app.route('/articles/published')
+def posts_published():
+    return render_template('articles_published.html')
+
+@app.route('/articles/new_article')
+def new_article():
+    return render_template('new_article.html')
 
 if __name__ == '__main__':
     app.run()

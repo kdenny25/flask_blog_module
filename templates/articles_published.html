@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="p-4 sm:ml-64">
+    <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
+        <div class="inline-flex items-center">
+            <p class="ml-4 text-4xl font-bold">Your Articles</p>
+        </div>
+        <div class="inline-flex items-center pr-4">
+            <a href="/articles/new_article" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Write an article</a>
+        </div>
+    </div>
+
+
+    <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="/articles/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Drafts</a>
+            </li>
+            <li class="me-2">
+                <a href="/articles/published" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Published</a>
+            </li>
+        </ul>
+    </div>
+
+    <ul class="rounded-lg dark:border-gray-700 divide-gray-200 mt-8 dark:divide-gray-700">
+        <li class="flex border-b-2 border-gray-400 pb-4">
+            <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
+                <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                </svg>
+            </div>
+            <div class="flex-col w-full m-4">
+                <div class="title w-full mb-6 text-gray-800 text-lg font-medium">
+                    <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[480px] mb-2.5"></div>
+                </div>
+                <div class="description w-full mb-6 text-gray-600 text">
+                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
+                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
+                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
+                </div>
+                <div class="date w-full mb-6 text-gray-600 text-sm">
+                    <div class="h-1 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}
