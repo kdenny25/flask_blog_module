@@ -6,10 +6,11 @@
 <div class="p-4 sm:ml-64">
     <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
         <div class="inline-flex items-center">
-            <p class="ml-4 text-4xl font-bold">Your Articles</p>
+            <p class="ml-4 text-4xl font-bold">Write a new article</p>
         </div>
         <div class="inline-flex items-center pr-4">
-            <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
+            <button type="button" id="publish" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</button>
+            <button type="button" id="publish" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
         </div>
     </div>
 
@@ -25,9 +26,28 @@
         </ul>
     </div>
 
-    <div class="rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
-        <div id="example"></div>
-    </div>
+    <form class="grid grid-cols-1 gap-4 rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
+        <div>
+            <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
+            <input type="text" id="title" maxlength="50" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
+            <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="title-count">0</div>/50</div>
+        </div>
+        <div>
+            <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Short Description</label>
+            <textarea id="description" rows="3" maxlength="150" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short description here..."></textarea>
+            <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="description-count">0</div>/150</div>
+        </div>
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Thumbnail</label>
+            <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
+        </div>
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="content">Article Content</label>
+            <textarea class="mt-8" id="content" name="content"></textarea>
+        </div>
+
+    </form>
 
 </div>
 
@@ -36,6 +56,20 @@
 {% block scripts %}
    <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
     <script>
-        var editor = new FroalaEditor('#example');
+        let editor = new FroalaEditor('#content', {}, function(){
+            console.log(editor.html.get())
+        });
+
+        $("#publish").on('click', function(e){
+            console.log(editor.html.get())
+        })
+
+        $("#title").on('keyup', function(e){
+            $("#title-count").text($(this).val().length)
+        })
+
+        $("#description").on('keyup', function(e){
+            $("#description-count").text($(this).val().length)
+        })
     </script>
 {% endblock %}
