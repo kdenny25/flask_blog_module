@@ -9,7 +9,7 @@
             <p class="ml-4 text-4xl font-bold">Write a new article</p>
         </div>
         <div class="inline-flex items-center pr-4">
-            <button type="button" id="publish" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</button>
+            <a href="/articles/save_draft" type="button" id="save-draft" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</a>
             <button type="button" id="publish" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
         </div>
     </div>
@@ -54,22 +54,93 @@
 {% endblock %}
 
 {% block scripts %}
-   <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
-    <script>
-        let editor = new FroalaEditor('#content', {}, function(){
-            console.log(editor.html.get())
+    <script type="text/javascript">
+        tinymce.init({
+            selector: '#content',
+            browser_spellcheck: true,
+            contextmenu: false,
+            plugins: [
+                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime', 'media', 'nonbreaking',
+                'save', 'table', 'directionality', 'codesample'
+            ],
+
+            toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons | codesample',
+            relative_urls: false,
+            images_upload_handler : function(blobInfo, success, failure) {
+                    var xhr, formData;
+
+                    xhr = new XMLHttpRequest();
+                    xhr.withCredentials = false;
+                    xhr.open('POST', '{{ url_for('upload_image') }}'); // change this
+
+                    xhr.onload = function() {
+                        var json;
+
+                        if (xhr.status != 200) {
+                            failure('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+
+                        json = JSON.parse(xhr.responseText);
+
+                        // if (!json || typeof json.file_path != 'string') {
+                        //     failure('Invalid JSON: ' + xhr.responseText);
+                        //     return;
+                        // }
+
+                        success(json.location);
+                    };
+
+                    formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    formData.append('csrf_token', '{{csrf_token()}}'); // i add csrf_token
+
+                    xhr.send(formData);
+                },
+            image_title: true,
+            automatic_uploads: true,
+            images_reuse_filename: false,
+            codesample_languages: [
+                { text: 'HTML/XML', value: 'markup' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'CSS', value: 'css' },
+                { text: 'Processing', value: 'processing' },
+                { text: 'Python', value: 'python' }
+            ],
+            width: "100%",
+            file_picker_types: 'image',
+              /* and here's our custom image picker*/
+              file_picker_callback: (cb, value, meta) => {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.addEventListener('change', (e) => {
+                  const file = e.target.files[0];
+
+                  const reader = new FileReader();
+                  reader.addEventListener('load', () => {
+                    /*
+                      Note: Now we need to register the blob in TinyMCEs image blob
+                      registry. In the next release this part hopefully won't be
+                      necessary, as we are looking to handle it internally.
+                    */
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+
+                    /* call the callback and populate the Title field with the file name */
+                    cb(blobInfo.blobUri(), { title: file.name });
+                  });
+                  reader.readAsDataURL(file);
+                });
+
+                input.click();
+              },
+              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
         });
-
-        $("#publish").on('click', function(e){
-            console.log(editor.html.get())
-        })
-
-        $("#title").on('keyup', function(e){
-            $("#title-count").text($(this).val().length)
-        })
-
-        $("#description").on('keyup', function(e){
-            $("#description-count").text($(this).val().length)
-        })
     </script>
 {% endblock %}

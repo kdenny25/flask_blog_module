@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask, request, render_template, redirect, session, jsonify, flash
 from flask_rollup import Bundle
+from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
 from dotenv import dotenv_values
 import os
@@ -10,6 +11,7 @@ config = dotenv_values('.env')
 
 app = Flask(__name__)
 
+ckeditor = CKEditor(app)
 # Use when implementing module
 # budgets = Blueprint('budgets', __name__,
 #                            template_folder='templates',
@@ -48,6 +50,17 @@ def posts_published():
 @app.route('/articles/new_article')
 def new_article():
     return render_template('new_article.html')
+
+@app.route('/articles/save_draft')
+def save_draft():
+    print("Test")
+
+@app.post('/uploadimage')
+def upload_image():
+    image = request.files.get('file')
+    print(image)
+
+    return jsonify({'location': '/file.jpg'})
 
 if __name__ == '__main__':
     app.run()
