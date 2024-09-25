@@ -2,14 +2,20 @@ from flask import Blueprint, Flask, request, render_template, redirect, session,
 from flask_rollup import Bundle
 from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.utils import secure_filename
 from dotenv import dotenv_values
+from urllib.request import urlopen
+from utilities import ArticleDb
 import os
-
+import base64
 
 # os.system("npm run")
 config = dotenv_values('.env')
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ckeditor = CKEditor(app)
 # Use when implementing module
@@ -24,7 +30,7 @@ csrf = CSRFProtect(app)
 # checks if working in local development environment or production environment
 if 'PUBLIC' in os.environ:
     # if connection string is not in local environment variables then we are working in local environment
-    #db = BudgetDb(config['LOCAL_DB'])
+    db = ArticleDb(config['LOCAL_DB'])
     app.secret_key = config['SECRET_KEY']
 else:
     # production
@@ -32,8 +38,9 @@ else:
 
     # conn_str = current_app.config.get('CONN_STRING')
 
-    #db = BudgetDb(os.environ['CONN_STRING'])
-    ...
+    db = ArticleDb(os.environ['CONN_STRING'])
+
+
 
 @app.route('/')
 def news_page():  # put application's code here
@@ -49,7 +56,9 @@ def posts_published():
 
 @app.route('/articles/new_article')
 def new_article():
-    return render_template('new_article.html')
+    new_id = db.new_article_id()
+
+    return render_template('new_article.html', article_id=new_id)
 
 @app.route('/articles/save_draft')
 def save_draft():
@@ -57,10 +66,17 @@ def save_draft():
 
 @app.post('/uploadimage')
 def upload_image():
-    image = request.files.get('file')
-    print(image)
+    image_load = request.files['image']
+    print(image_load)
+    filename = secure_filename(image_load.filename)
+    image = base64.b64encode(image_load.read())
+    article_id = request.form.get('articleId')
 
-    return jsonify({'location': '/file.jpg'})
+    db.add_article_image(article_id, filename, image)
+
+    image_load.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    return jsonify({'location': "/static/uploads/"+filename})
 
 if __name__ == '__main__':
     app.run()

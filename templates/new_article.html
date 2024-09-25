@@ -3,7 +3,7 @@
 {% block style %}
 {% endblock %}
 {% block content %}
-<div class="p-4 sm:ml-64">
+<div class="p-4 sm:ml-64" id="article" data-article-id="{{ article_id }}">
     <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
         <div class="inline-flex items-center">
             <p class="ml-4 text-4xl font-bold">Write a new article</p>
@@ -54,9 +54,65 @@
 {% endblock %}
 
 {% block scripts %}
+    <script>
+        $("#publish").on('click', function(){
+            console.log(tinymce.activeEditor.getContent('content'))
+
+            // Gets all image file names
+            var arr = new Array();
+            $(tinyMCE.activeEditor.dom.getRoot()).each(
+                  function()
+                    {
+                      arr.push( $(this).attr("src"))
+                    });
+        })
+    </script>
     <script type="text/javascript">
+        const example_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {
+              const xhr = new XMLHttpRequest();
+                xhr.withCredentials = false;
+                xhr.open('POST', '{{ url_for('upload_image') }}'); // change this
+
+                xhr.upload.onprogress = (e) => {
+                    progress(e.loaded / e.total * 100);
+                };
+
+                xhr.onload = () =>  {
+                    if (xhr.status === 403) {
+                      reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+                      return;
+                    }
+
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                      reject('HTTP Error: ' + xhr.status);
+                      return;
+                    }
+
+                    const json = JSON.parse(xhr.responseText);
+
+                    if (!json || typeof json.location != 'string') {
+                         failure('Invalid JSON: ' + xhr.responseText);
+                         return;
+                    }
+
+                    resolve(json.location);
+                };
+
+                xhr.onerror = () => {
+                    reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+                };
+
+                const formData = new FormData();
+                formData.append('image', blobInfo.blob(), blobInfo.filename());
+                formData.append('articleId', $('#article').data('article-id'))
+                formData.append('csrf_token', '{{csrf_token()}}'); // i add csrf_token
+
+                xhr.send(formData);
+            })
+
         tinymce.init({
             selector: '#content',
+            height: 600,
             browser_spellcheck: true,
             contextmenu: false,
             plugins: [
@@ -67,37 +123,8 @@
 
             toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons | codesample',
             relative_urls: false,
-            images_upload_handler : function(blobInfo, success, failure) {
-                    var xhr, formData;
-
-                    xhr = new XMLHttpRequest();
-                    xhr.withCredentials = false;
-                    xhr.open('POST', '{{ url_for('upload_image') }}'); // change this
-
-                    xhr.onload = function() {
-                        var json;
-
-                        if (xhr.status != 200) {
-                            failure('HTTP Error: ' + xhr.status);
-                            return;
-                        }
-
-                        json = JSON.parse(xhr.responseText);
-
-                        // if (!json || typeof json.file_path != 'string') {
-                        //     failure('Invalid JSON: ' + xhr.responseText);
-                        //     return;
-                        // }
-
-                        success(json.location);
-                    };
-
-                    formData = new FormData();
-                    formData.append('file', blobInfo.blob(), blobInfo.filename());
-                    formData.append('csrf_token', '{{csrf_token()}}'); // i add csrf_token
-
-                    xhr.send(formData);
-                },
+            images_upload_handler : example_image_upload_handler,
+            images_upload_base_path: '/',
             image_title: true,
             automatic_uploads: true,
             images_reuse_filename: false,

@@ -1,5 +1,3 @@
 flask-wtf
 psycopg2
 python-dotenv
-flask-rollup
-
