@@ -5,6 +5,7 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
 from dotenv import dotenv_values
 from urllib.request import urlopen
+from urllib.parse import urlencode
 from utilities import ArticleDb
 import os
 import base64
@@ -66,15 +67,19 @@ def save_draft():
 
 @app.post('/uploadimage')
 def upload_image():
-    image_load = request.files['image']
-    print(image_load)
+    image_load = request.files.get('image')
+
     filename = secure_filename(image_load.filename)
+    print(filename)
     image = base64.b64encode(image_load.read())
+
+    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb") as fh:
+        fh.write(base64.decodebytes(image))
+
+
     article_id = request.form.get('articleId')
 
     db.add_article_image(article_id, filename, image)
-
-    image_load.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
     return jsonify({'location': "/static/uploads/"+filename})
 
