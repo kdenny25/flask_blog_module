@@ -6,6 +6,7 @@ class ArticleDb:
         self.cursor = self.con.cursor()
         self.create_article_table()
         self.create_article_images_table()
+        self.create_topics_table()
 
 
     def create_article_table(self):
@@ -29,7 +30,7 @@ class ArticleDb:
     def create_topics_table(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS topics( "
                             "topic_id SERIAL PRIMARY KEY, "
-                            "topic VARCHAR(20))")
+                            "topic VARCHAR(20) UNIQUE)")
 
 
     def new_article_id(self):
@@ -71,8 +72,26 @@ class ArticleDb:
                             (article_id, status, date_created, title, short_description, topics, thumbnail, content))
         self.con.commit()
 
-    def add_topic(self, topic):
+    def add_topics(self, topics):
+        arg_list = []
+        for topic in topics:
+            arg_list.append((topic, ))
+        # cursor.mogrify() to insert multiple values
+        args = ','.join(self.cursor.mogrify("(%s)", i).decode('utf-8')
+                        for i in arg_list)
+
         self.cursor.execute("INSERT INTO topics(topic) "
-                            "VALUES(%s);", (topic, ))
+                            "VALUES " + args +
+                            "ON CONFLICT (topic) DO NOTHING;")
         self.con.commit()
+
+    def get_topics(self):
+        self.cursor.execute("SELECT topic "
+                            "FROM topics ")
+        results = self.cursor.fetchall()
+
+        topic_list = []
+        for result in results:
+            topic_list.append(result[0])
+        return topic_list
 

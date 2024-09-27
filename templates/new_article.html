@@ -9,8 +9,8 @@
             <p class="ml-4 text-4xl font-bold">Write a new article</p>
         </div>
         <div class="inline-flex items-center pr-4">
-            <a href="/articles/save_draft" type="button" id="save-draft" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</a>
-            <button type="button" id="publish" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
+            <button type="button" data-status="draft" id="save-draft" class="article-action text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</button>
+            <button type="button" data-status="publish" id="published" class="article-action text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
         </div>
     </div>
 
@@ -59,23 +59,17 @@
 
 {% block scripts %}
     <script>
-        $("#publish").on('click', function(){
+        $(".article-action").on('click', function(){
             var oldDir = '/static/uploads/'
 
              var content = tinymce.get('content').getContent();
-            {#var updated_content = $(content).find('img').each(function(){#}
-            {#    var imgName = $(this).attr("src").replace(oldDir, "").split('?')[0]#}
-            {#    // replace src with jinja variable#}
-            {#    var newImgName = {% raw %}'{{ image["' + imgName + '"] }}'{% endraw %}#}
-            {#   $(this).attr("src", newImgName)#}
-            {# }) #}
-            {#console.log(updated_content)#}
 
             var form_data = new FormData()
-            form_Data.append('articleId', $('#article').data('article-id'))
+            form_data.append('articleId', $('#article').data('article-id'))
+            form_data.append('status', $(this).data('status'))
             form_data.append('title', $('#title').val())
             form_data.append('description', $('#description').val())
-            form_data.append('topics', $('topics').val())
+            form_data.append('topics', $('#topics').val())
             form_data.append('thumbnail', $('#file_input').prop('files')[0])
             form_data.append('content', content )
 
@@ -195,4 +189,47 @@
               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
         });
     </script>
+      <script>
+  $( function() {
+    var availableTags = {{ topics | safe }};
+    function split( val ) {
+      return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+      return split( term ).pop();
+    }
+
+    $( "#topics" )
+      // don't navigate away from the field on tab when selecting an item
+      .on( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).autocomplete( "instance" ).menu.active ) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 0,
+        source: function( request, response ) {
+          // delegate back to autocomplete, but extract the last term
+          response( $.ui.autocomplete.filter(
+            availableTags, extractLast( request.term ) ) );
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( ", " );
+          return false;
+        }
+      });
+  } );
+  </script>
 {% endblock %}

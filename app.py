@@ -7,6 +7,7 @@ from dotenv import dotenv_values
 from urllib.request import urlopen
 from urllib.parse import urlencode
 from utilities import ArticleDb
+from datetime import datetime
 import re
 import os
 import base64
@@ -59,8 +60,11 @@ def posts_published():
 @app.route('/articles/new_article')
 def new_article():
     new_id = db.new_article_id()
-
-    return render_template('new_article.html', article_id=new_id)
+    try:
+        topics = db.get_topics()
+    except:
+        topics = []
+    return render_template('new_article.html', article_id=new_id, topics=topics)
 
 @app.route('/articles/save_draft')
 def save_draft():
@@ -88,11 +92,15 @@ def upload_image():
 def publish_article():
     article_id = request.form.get('articleId')
     title = request.form.get('title')
+    status = request.form.get('status')
     description = request.form.get('description')
-    topics = request.form.get('topics')
+    topics = request.form.get('topics').split(',')
     thumbnail = request.files.get('thumbnail')
     content = request.form.get('content')
 
+    #######################
+    # Preprocessing data
+    #######################
     if thumbnail != None:
         image = base64.b64encode(thumbnail.read())
 
@@ -108,7 +116,15 @@ def publish_article():
         jinja_tag = "{{ image['" + image_name + "'] }}"
         content = re.sub(img, jinja_tag, content)
 
-
+    ###########################
+    # Add data to databases
+    ###########################
+    topic_list = []
+    for topic in topics:
+        topic_list.append(topic.strip().lower().title())
+    db.add_topics(topic_list)
+    print(status)
+    db.add_article(article_id, status, )
     print(content)
     print(thumbnail)
 
