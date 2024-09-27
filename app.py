@@ -7,6 +7,7 @@ from dotenv import dotenv_values
 from urllib.request import urlopen
 from urllib.parse import urlencode
 from utilities import ArticleDb
+import re
 import os
 import base64
 
@@ -85,15 +86,30 @@ def upload_image():
 
 @app.post('/articles/publish')
 def publish_article():
+    article_id = request.form.get('articleId')
     title = request.form.get('title')
+    description = request.form.get('description')
+    topics = request.form.get('topics')
     thumbnail = request.files.get('thumbnail')
+    content = request.form.get('content')
 
-    image = base64.b64encode(thumbnail.read())
+    if thumbnail != None:
+        image = base64.b64encode(thumbnail.read())
 
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
-        fh.write(base64.decodebytes(image))
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
+            fh.write(base64.decodebytes(image))
 
-    print(title)
+    # replace image filepath with jinja tag
+    all_images = re.findall("src=\"(.*?)\">", content)
+    oldDir = '/static/uploads/'
+
+    for img in all_images:
+        image_name = img.replace(oldDir, "")
+        jinja_tag = "{{ image['" + image_name + "'] }}"
+        content = re.sub(img, jinja_tag, content)
+
+
+    print(content)
     print(thumbnail)
 
     return jsonify(results="Complete")

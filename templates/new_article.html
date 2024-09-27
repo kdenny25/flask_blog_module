@@ -38,6 +38,10 @@
             <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="description-count">0</div>/150</div>
         </div>
         <div>
+            <label for="topics" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Topics</label>
+            <input type="text" id="topics" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" required />
+        </div>
+        <div>
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Thumbnail</label>
             <input  id="file_input" type="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help">
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
@@ -56,25 +60,24 @@
 {% block scripts %}
     <script>
         $("#publish").on('click', function(){
-            console.log(tinymce.activeEditor.getContent('content'))
+            var oldDir = '/static/uploads/'
 
-            $(tinyMCE.activeEditor.dom.getRoot()).each(
-              function()
-                {
-                    var oldDir = '/static/uploads/'
-                    $(this).find('img').each(function(){
-                        var imgSrc = $(this).attr("src")
-                        var imgName = $(this).attr("src").replace(oldDir, "").split('?')[0]
-                        // replace src with jinja variable
-                        var newImgName = {% raw %}'{{ image["' + imgName + '"] }}'{% endraw %}
-                        console.log(newImgName)
-                    })
-                });
+             var content = tinymce.get('content').getContent();
+            {#var updated_content = $(content).find('img').each(function(){#}
+            {#    var imgName = $(this).attr("src").replace(oldDir, "").split('?')[0]#}
+            {#    // replace src with jinja variable#}
+            {#    var newImgName = {% raw %}'{{ image["' + imgName + '"] }}'{% endraw %}#}
+            {#   $(this).attr("src", newImgName)#}
+            {# }) #}
+            {#console.log(updated_content)#}
 
             var form_data = new FormData()
-            console.log($('#article-details')[0])
+            form_Data.append('articleId', $('#article').data('article-id'))
             form_data.append('title', $('#title').val())
+            form_data.append('description', $('#description').val())
+            form_data.append('topics', $('topics').val())
             form_data.append('thumbnail', $('#file_input').prop('files')[0])
+            form_data.append('content', content )
 
             $.ajax({
                 type: 'POST',

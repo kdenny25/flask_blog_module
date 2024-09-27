@@ -11,6 +11,7 @@ class ArticleDb:
     def create_article_table(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS articles( "
                             "article_id INT PRIMARY KEY, "
+                            "status VARCHAR(50) NOT NULL, "
                             "date_created DATE NOT NULL, "
                             "title VARCHAR(50) NOT NULL, "
                             "short_description VARCHAR(150), "
@@ -24,6 +25,11 @@ class ArticleDb:
                             "article_id INT,"
                             "file_name TEXT NOT NULL,"
                             "image BYTEA)")
+
+    def create_topics_table(self):
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS topics( "
+                            "topic_id SERIAL PRIMARY KEY, "
+                            "topic VARCHAR(20))")
 
 
     def new_article_id(self):
@@ -57,5 +63,16 @@ class ArticleDb:
         for image in results:
             image_dict[image[0]] = bytes(image[1]).decode('utf-8')
 
-        print(image_dict)
         return image_dict
+
+    def add_article(self, article_id, status, date_created, title, short_description, topics, thumbnail, content):
+        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, title, short_description, topics, thumbnail, content) "
+                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s);",
+                            (article_id, status, date_created, title, short_description, topics, thumbnail, content))
+        self.con.commit()
+
+    def add_topic(self, topic):
+        self.cursor.execute("INSERT INTO topics(topic) "
+                            "VALUES(%s);", (topic, ))
+        self.con.commit()
+
