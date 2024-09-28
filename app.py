@@ -61,8 +61,12 @@ def posts_drafts():
 
 @app.route('/articles/published')
 def posts_published():
-    published = db.get_articles('published')
-    return render_template('articles_published.html', published=published)
+    published = [list(draft) for draft in db.get_articles('draft')]
+    images = []
+    for idx, draft in enumerate(published):
+        images.append(bytes(draft[9]).decode('utf-8'))
+
+    return render_template('articles_published.html', published=published, images=images)
 
 @app.route('/articles/new_article')
 def new_article():
@@ -85,8 +89,9 @@ def edit_article(id):
 
     article_con = Environment(loader=BaseLoader).from_string(article[10])
     content = render_template(article_con, image=images)
+    thumbnail = bytes(article[9]).decode('utf-8')
 
-    return render_template('edit_article.html', article=article, topics=topics, image=images, content=content)
+    return render_template('edit_article.html', article=article, thumbnail=thumbnail, topics=topics, image=images, content=content)
 
 @app.route('/articles/preview/<id>')
 def preview_article(id):
