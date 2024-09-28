@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask, request, render_template, redirect, session, jsonify, flash
 from flask_rollup import Bundle
+from jinja2 import Environment, BaseLoader
 from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
@@ -51,8 +52,12 @@ def news_page():  # put application's code here
 
 @app.route('/articles/drafts')
 def posts_drafts():
-    drafts = db.get_articles('draft')
-    return render_template('articles_drafts.html', drafts=drafts)
+    drafts = [list(draft) for draft in db.get_articles('draft')]
+    images = []
+    for idx, draft in enumerate(drafts):
+        images.append(bytes(draft[9]).decode('utf-8'))
+
+    return render_template('articles_drafts.html', drafts=drafts, images=images)
 
 @app.route('/articles/published')
 def posts_published():
@@ -72,16 +77,28 @@ def new_article():
 def edit_article(id):
     article = db.get_article(id)
     images = db.get_article_images(id)
+    print(images.keys())
     try:
         topics = db.get_topics()
     except:
         topics = []
 
-    article_topic = ""
-    for topic in article[8]:
-        article_topic = article_topic + topic + ', '
+    article_con = Environment(loader=BaseLoader).from_string(article[10])
+    content = render_template(article_con, image=images)
 
-    return render_template('edit_article.html', article=article, topics=topics, images=images, article_topics=article_topic)
+    return render_template('edit_article.html', article=article, topics=topics, image=images, content=content)
+
+@app.route('/articles/preview/<id>')
+def preview_article(id):
+    article = db.get_article(id)
+    images = db.get_article_images(id)
+    thumbnail = bytes(article[9]).decode('utf-8')
+
+    article_con = Environment(loader=BaseLoader).from_string(article[10])
+    content = render_template(article_con, image=images)
+
+    return render_template('preview.html', article=article, thumbnail=thumbnail, image=images, content=content)
+
 
 @app.post('/uploadimage')
 def upload_image():
@@ -119,18 +136,21 @@ def publish_article():
     if thumbnail != None:
         image = base64.b64encode(thumbnail.read())
 
-        # with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
-        #     fh.write(base64.decodebytes(image))
+        # image = thumbnail.read()
+        # print(type(image))
+
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
+            fh.write(base64.decodebytes(image))
     else:
         image = None
 
     # replace image filepath with jinja tag
-    all_images = re.findall("src=\"(.*?)\">", content)
+    all_images = re.findall("src=\"(.*?)\"", content)
     oldDir = '/static/uploads/'
 
     for img in all_images:
         image_name = img.replace(oldDir, "")
-        jinja_tag = "{{ image['" + image_name + "'] }}"
+        jinja_tag = "data:image/jpeg;base64,{{ image['" + image_name + "'] }}"
         content = re.sub(img, jinja_tag, content)
 
     ###########################
@@ -142,7 +162,10 @@ def publish_article():
     db.add_topics(topic_list)
 
     if db.check_article_exists(article_id) == True:
-        db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+        if image != None:
+            db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+        else:
+            db.update_article_no_thumb(article_id, status, date_created, time_created, title, description, topic_list, content)
     else:
         db.add_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
 

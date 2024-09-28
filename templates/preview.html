@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="p-4 sm:ml-64">
+    <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
+        <div class="inline-flex items-center">
+            <p class="ml-4 text-4xl font-bold">{{ article[6] }}</p>
+        </div>
+        <div class="inline-flex items-center pr-4">
+            <a href="/articles/edit_article/{{ article[0] }}" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Edit article</a>        </div>
+    </div>
+
+
+    <div class="text-sm font-medium text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
+            <img class="" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
+        </div>
+        <div>
+            {{ content|safe }}
+        </div>
+
+    </div>
+
+
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

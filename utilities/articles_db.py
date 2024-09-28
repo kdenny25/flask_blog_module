@@ -72,13 +72,22 @@ class ArticleDb:
     def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content):
         self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content) "
                             "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                            (article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content))
+                            (article_id, status, date_created, time_created, title, short_description, topics, psycopg2.Binary(thumbnail), content))
         self.con.commit()
 
     def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content):
         self.cursor.execute("UPDATE articles "
                             "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, thumbnail=%s, content=%s "
-                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, thumbnail, content, article_id))
+                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, psycopg2.Binary(thumbnail), content, article_id))
+        self.con.commit()
+
+    def update_article_no_thumb(self, article_id, status, date_updated, time_updated, title, short_description, topics,
+                       content):
+        self.cursor.execute("UPDATE articles "
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, content=%s "
+                            "WHERE article_id=%s;", (
+                            status, date_updated, time_updated, title, short_description, topics,
+                            content, article_id))
         self.con.commit()
 
     def get_articles(self, status):
