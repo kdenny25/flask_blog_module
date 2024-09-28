@@ -23,27 +23,48 @@
     </div>
 
     <ul class="rounded-lg dark:border-gray-700 divide-gray-200 mt-8 dark:divide-gray-700">
-        <li class="flex border-b-2 border-gray-400 pb-4">
-            <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
-                <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
-                </svg>
-            </div>
-            <div class="flex-col w-full m-4">
-                <div class="title w-full mb-6 text-gray-800 text-lg font-medium">
-                    <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[480px] mb-2.5"></div>
+        {% if drafts|length == 0 %}
+            <li class="flex border-b-2 border-gray-400 pb-4">
+                <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
+                    <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                        <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                    </svg>
                 </div>
-                <div class="description w-full mb-6 text-gray-600 text">
-                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
-                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
-                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
-                    <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
+                <div class="flex-col w-full m-4">
+                    <div class="title w-full mb-6 text-gray-800 text-lg font-medium">
+                        <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[480px] mb-2.5"></div>
+                    </div>
+                    <div class="description w-full mb-6 text-gray-600 text">
+                        <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
+                        <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[640px] mb-2.5"></div>
+                        <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                        <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
+                    </div>
+                    <div class="date w-full mb-6 text-gray-600 text-sm">
+                        <div class="h-1 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
+                    </div>
                 </div>
-                <div class="date w-full mb-6 text-gray-600 text-sm">
-                    <div class="h-1 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
-                </div>
-            </div>
-        </li>
+            </li>
+        {% else %}
+            {% for draft in drafts %}
+                <li class="flex border-b-2 border-gray-400 pb-4">
+                    <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
+                        <img class="" src="data:image/jpeg;base64,{{ draft[9] }}" alt="article thumbnail">
+                    </div>
+                    <div class="flex-col w-full m-4">
+                        <a href="/articles/edit_article/{{ draft[0] }}" class="title w-full mb-6 text-gray-800 text-lg font-medium">
+                            {{ draft[6] }}
+                        </a>
+                        <div class="description w-full mb-6 text-gray-600 text">
+                            {{ draft[7] }}
+                        </div>
+                        <div class="date w-full mb-6 text-gray-600 text-sm">
+                            Created on {{ draft[2] }} at {{ draft[3] }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        {% endif %}
     </ul>
 
 </div>

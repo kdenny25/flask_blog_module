@@ -51,11 +51,13 @@ def news_page():  # put application's code here
 
 @app.route('/articles/drafts')
 def posts_drafts():
-    return render_template('articles_drafts.html')
+    drafts = db.get_articles('draft')
+    return render_template('articles_drafts.html', drafts=drafts)
 
 @app.route('/articles/published')
 def posts_published():
-    return render_template('articles_published.html')
+    published = db.get_articles('published')
+    return render_template('articles_published.html', published=published)
 
 @app.route('/articles/new_article')
 def new_article():
@@ -66,9 +68,20 @@ def new_article():
         topics = []
     return render_template('new_article.html', article_id=new_id, topics=topics)
 
-@app.route('/articles/save_draft')
-def save_draft():
-    print("Test")
+@app.route('/articles/edit_article/<id>')
+def edit_article(id):
+    article = db.get_article(id)
+    images = db.get_article_images(id)
+    try:
+        topics = db.get_topics()
+    except:
+        topics = []
+
+    article_topic = ""
+    for topic in article[8]:
+        article_topic = article_topic + topic + ', '
+
+    return render_template('edit_article.html', article=article, topics=topics, images=images, article_topics=article_topic)
 
 @app.post('/uploadimage')
 def upload_image():
@@ -97,6 +110,8 @@ def publish_article():
     topics = request.form.get('topics').split(',')
     thumbnail = request.files.get('thumbnail')
     content = request.form.get('content')
+    date_created = datetime.today().strftime('%m/%d/%Y')
+    time_created = datetime.now().time()
 
     #######################
     # Preprocessing data
@@ -104,8 +119,10 @@ def publish_article():
     if thumbnail != None:
         image = base64.b64encode(thumbnail.read())
 
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
-            fh.write(base64.decodebytes(image))
+        # with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
+        #     fh.write(base64.decodebytes(image))
+    else:
+        image = None
 
     # replace image filepath with jinja tag
     all_images = re.findall("src=\"(.*?)\">", content)
@@ -123,12 +140,13 @@ def publish_article():
     for topic in topics:
         topic_list.append(topic.strip().lower().title())
     db.add_topics(topic_list)
-    print(status)
-    db.add_article(article_id, status, )
-    print(content)
-    print(thumbnail)
 
-    return jsonify(results="Complete")
+    if db.check_article_exists(article_id) == True:
+        db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+    else:
+        db.add_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+
+    return jsonify(results=article_id)
 
 if __name__ == '__main__':
     app.run()

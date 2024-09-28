@@ -3,7 +3,7 @@
 {% block style %}
 {% endblock %}
 {% block content %}
-<div class="p-4 sm:ml-64" id="article" data-article-id="{{ article_id }}">
+<div class="p-4 sm:ml-64" id="article" data-article-id="{{ article[0] }}">
     <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
         <div class="inline-flex items-center">
             <p class="ml-4 text-4xl font-bold">Write a new article</p>
@@ -29,17 +29,17 @@
     <form id="article-details" method="post" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
         <div>
             <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-            <input type="text" id="title" maxlength="50" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
+            <input type="text" id="title" maxlength="50" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" value="{{ article[6] }}" required />
             <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="title-count">0</div>/50</div>
         </div>
         <div>
             <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Short Description</label>
-            <textarea id="description" rows="3" maxlength="150" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short description here..."></textarea>
+            <textarea id="description" rows="3" maxlength="150" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short description here...">{{ article[7] }}</textarea>
             <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="description-count">0</div>/150</div>
         </div>
         <div>
             <label for="topics" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Topics</label>
-            <input type="text" id="topics" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" required />
+            <input type="text" id="topics" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Topic, Topic" value="{{ article_topics }}" required />
         </div>
         <div>
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Thumbnail</label>
@@ -48,7 +48,9 @@
         </div>
         <div>
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="content">Article Content</label>
-            <textarea class="mt-8" id="content" name="content"></textarea>
+            <textarea class="mt-8" id="content" name="content">
+                {{ article[10] }}
+            </textarea>
         </div>
 
     </form>

@@ -14,6 +14,9 @@ class ArticleDb:
                             "article_id INT PRIMARY KEY, "
                             "status VARCHAR(50) NOT NULL, "
                             "date_created DATE NOT NULL, "
+                            "time_created TIME NOT NULL, "
+                            "date_updated DATE, "
+                            "time_updated TIME, "
                             "title VARCHAR(50) NOT NULL, "
                             "short_description VARCHAR(150), "
                             "topics TEXT[], "
@@ -66,11 +69,39 @@ class ArticleDb:
 
         return image_dict
 
-    def add_article(self, article_id, status, date_created, title, short_description, topics, thumbnail, content):
-        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, title, short_description, topics, thumbnail, content) "
-                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s);",
-                            (article_id, status, date_created, title, short_description, topics, thumbnail, content))
+    def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content):
+        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content) "
+                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            (article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content))
         self.con.commit()
+
+    def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content):
+        self.cursor.execute("UPDATE articles "
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, thumbnail=%s, content=%s "
+                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, thumbnail, content, article_id))
+        self.con.commit()
+
+    def get_articles(self, status):
+        self.cursor.execute("SELECT article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
+                            "FROM articles "
+                            "WHERE status=%s;", (status,))
+        results = self.cursor.fetchall()
+        return results
+
+    def get_article(self, article_id):
+        self.cursor.execute("SELECT article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
+                            "FROM articles "
+                            "WHERE article_id=%s;", (article_id,))
+        results = self.cursor.fetchone()
+        return results
+
+    def check_article_exists(self, article_id):
+        self.cursor.execute("SELECT EXISTS(SELECT 1 "
+                            "FROM articles "
+                            "WHERE article_id = %s);", (article_id,))
+        result = self.cursor.fetchone()[0]
+
+        return result
 
     def add_topics(self, topics):
         arg_list = []
