@@ -5,6 +5,7 @@ class ArticleDb:
         self.con = psycopg2.connect(connection_string)
         self.cursor = self.con.cursor()
         self.create_article_table()
+        self.create_gin_index()
         self.create_article_images_table()
         self.create_topics_table()
 
@@ -17,11 +18,14 @@ class ArticleDb:
                             "time_created TIME NOT NULL, "
                             "date_updated DATE, "
                             "time_updated TIME, "
-                            "title VARCHAR(50) NOT NULL, "
+                            "title VARCHAR(100) NOT NULL, "
                             "short_description VARCHAR(150), "
                             "topics TEXT[], "
                             "thumbnail BYTEA,"
-                            "content TEXT)")
+                            "content TEXT,"
+                            "content_text TEXT,"
+                            "text_searchable_index tsvector "
+                            "GENERATED ALWAYS AS (to_tsvector('english', coalesce(title, '') || ' ' || coalesce(content_text, ''))) STORED)")
 
     def create_article_images_table(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS article_imgs( "
@@ -35,6 +39,13 @@ class ArticleDb:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS topics( "
                             "topic_id SERIAL PRIMARY KEY, "
                             "topic VARCHAR(20) UNIQUE)")
+
+
+    def create_gin_index(self):
+        """creates the gin index on articles table to improve article search speeds"""
+
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS textsearch_idx ON articles USING GIN(text_searchable_index);")
+        self.con.commit()
 
 
     def new_article_id(self):
@@ -72,25 +83,25 @@ class ArticleDb:
 
         return image_dict
 
-    def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content):
-        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content) "
-                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                            (article_id, status, date_created, time_created, title, short_description, topics, psycopg2.Binary(thumbnail), content))
+    def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content, text_content):
+        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content, content_text) "
+                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            (article_id, status, date_created, time_created, title, short_description, topics, psycopg2.Binary(thumbnail), content, text_content))
         self.con.commit()
 
-    def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content):
+    def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content, text_content):
         self.cursor.execute("UPDATE articles "
-                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, thumbnail=%s, content=%s "
-                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, psycopg2.Binary(thumbnail), content, article_id))
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, thumbnail=%s, content=%s, content_text=%s "
+                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, psycopg2.Binary(thumbnail), content, text_content, article_id))
         self.con.commit()
 
     def update_article_no_thumb(self, article_id, status, date_updated, time_updated, title, short_description, topics,
-                       content):
+                       content, text_content):
         self.cursor.execute("UPDATE articles "
-                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, content=%s "
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, content=%s, content_text=%s "
                             "WHERE article_id=%s;", (
                             status, date_updated, time_updated, title, short_description, topics,
-                            content, article_id))
+                            content, text_content, article_id))
         self.con.commit()
 
     def get_articles(self, status):

@@ -48,8 +48,8 @@
     <form id="article-details" method="post" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
         <div>
             <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-            <input type="text" id="title" maxlength="50" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
-            <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="title-count">0</div>/50</div>
+            <input type="text" id="title" maxlength="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
+            <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="title-count">0</div>/100</div>
         </div>
         <div>
             <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Short Description</label>
@@ -81,7 +81,8 @@
         $(".article-action").on('click', function(){
             var oldDir = '/static/uploads/'
 
-             var content = tinymce.get('content').getContent();
+            var content = tinymce.get('content').getContent();
+            var text_content = tinymce.get('content').getContent({format: "text"})
 
             var form_data = new FormData()
             form_data.append('articleId', $('#article').data('article-id'))
@@ -91,6 +92,7 @@
             form_data.append('topics', $('#topics').val())
             form_data.append('thumbnail', $('#file_input').prop('files')[0])
             form_data.append('content', content )
+            form_data.append('text_content', text_content)
 
             $.ajax({
                 type: 'POST',

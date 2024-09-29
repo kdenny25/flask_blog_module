@@ -46,9 +46,14 @@ else:
 
 
 
-@app.route('/')
-def news_page():  # put application's code here
-    return render_template('news_page.html')
+@app.route('/articles/browse')
+def browse_articles():  # put application's code here
+    topics = db.get_topics()
+    articles = [list(draft) for draft in db.get_articles('publish')]
+    images = []
+    for idx, draft in enumerate(articles):
+        images.append(bytes(draft[9]).decode('utf-8'))
+    return render_template('browse_articles.html', articles=articles, thumbnails=images, topics=topics)
 
 @app.route('/articles/drafts')
 def posts_drafts():
@@ -143,6 +148,7 @@ def publish_article():
     topics = request.form.get('topics').split(',')
     thumbnail = request.files.get('thumbnail')
     content = request.form.get('content')
+    text_content = request.form.get('text_content')
     date_created = datetime.today().strftime('%m/%d/%Y')
     time_created = datetime.now().time()
 
@@ -178,15 +184,20 @@ def publish_article():
 
         if topic != ' ':
             topic_list.append(topic.strip().lower().title())
-    db.add_topics(topic_list)
+
 
     if db.check_article_exists(article_id) == True:
         if image != None:
-            db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+            db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image,
+                              content, text_content)
         else:
-            db.update_article_no_thumb(article_id, status, date_created, time_created, title, description, topic_list, content)
+            db.update_article_no_thumb(article_id, status, date_created, time_created, title, description, topic_list,
+                                       content, text_content)
     else:
-        db.add_article(article_id, status, date_created, time_created, title, description, topic_list, image, content)
+        db.add_article(article_id, status, date_created, time_created, title, description, topic_list, image, content,
+                       text_content)
+
+    db.add_topics(topic_list)
 
     return jsonify(results=article_id)
 
