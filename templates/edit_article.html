@@ -44,7 +44,7 @@
         </div>
         <div>
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Thumbnail</label>
-            <img class="h-24 w-36 m-4" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
+            <img id="thumb-preview" class="h-24 w-36 m-4" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
             <input  id="file_input" type="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help">
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
         </div>
@@ -62,6 +62,23 @@
 {% endblock %}
 
 {% block scripts %}
+    <script>
+    $(document).ready(() => {
+        const thumbImp = $('#file_input');
+        let file;
+
+        thumbImp.change(function(e){
+            file = this.files[0];
+            if(file){
+                let reader = new FileReader();
+                reader.onload = function(event){
+                    $('#thumb-preview').attr('src', event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        })
+    })
+    </script>
     <script>
         $(".article-action").on('click', function(){
             var oldDir = '/static/uploads/'

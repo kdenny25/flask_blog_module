@@ -61,7 +61,7 @@ def posts_drafts():
 
 @app.route('/articles/published')
 def posts_published():
-    published = [list(draft) for draft in db.get_articles('draft')]
+    published = [list(draft) for draft in db.get_articles('publish')]
     images = []
     for idx, draft in enumerate(published):
         images.append(bytes(draft[9]).decode('utf-8'))
@@ -81,7 +81,7 @@ def new_article():
 def edit_article(id):
     article = db.get_article(id)
     images = db.get_article_images(id)
-    print(images.keys())
+
     try:
         topics = db.get_topics()
     except:
@@ -110,18 +110,29 @@ def upload_image():
     image_load = request.files.get('image')
 
     filename = secure_filename(image_load.filename)
-    print(filename)
+
     image = base64.b64encode(image_load.read())
 
     with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb") as fh:
         fh.write(base64.decodebytes(image))
 
-
     article_id = request.form.get('articleId')
-
-    db.add_article_image(article_id, filename, image)
+    unique_identifier = filename + str(article_id)
+    db.add_article_image(article_id, unique_identifier, filename, image)
 
     return jsonify({'location': "/static/uploads/"+filename})
+
+@app.post('/articles/set_published/<id>')
+def set_published(id):
+    db.set_article_status(id, 'publish')
+
+    return jsonify(results="Success")
+
+@app.post('/articles/delete_article/<id>')
+def delete_article(id):
+    db.delete_article(id)
+
+    return jsonify(results="Success")
 
 @app.post('/articles/publish')
 def publish_article():
@@ -163,7 +174,8 @@ def publish_article():
     ###########################
     topic_list = []
     for topic in topics:
-        topic_list.append(topic.strip().lower().title())
+        if topic != '':
+            topic_list.append(topic.strip().lower().title())
     db.add_topics(topic_list)
 
     if db.check_article_exists(article_id) == True:

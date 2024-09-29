@@ -27,6 +27,7 @@ class ArticleDb:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS article_imgs( "
                             "image_id SERIAL PRIMARY KEY, "
                             "article_id INT,"
+                            "id_fn TEXT UNIQUE, "
                             "file_name TEXT NOT NULL,"
                             "image BYTEA)")
 
@@ -49,9 +50,11 @@ class ArticleDb:
 
         return results
 
-    def add_article_image(self, article_id, file_name, image):
-        self.cursor.execute("INSERT INTO article_imgs(article_id, file_name, image) "
-                            "VALUES(%s, %s, %s);", (article_id, file_name, psycopg2.Binary(image)))
+    def add_article_image(self, article_id, unique_identifier, file_name, image):
+        """Adds article image to database and avoids adding duplicate images"""
+        self.cursor.execute("INSERT INTO article_imgs(article_id, id_fn, file_name, image) "
+                            "VALUES(%s, %s, %s, %s) "
+                            "ON CONFLICT (id_fn) DO NOTHING;", (article_id, unique_identifier, file_name, psycopg2.Binary(image)))
 
         self.con.commit()
 
@@ -111,6 +114,18 @@ class ArticleDb:
         result = self.cursor.fetchone()[0]
 
         return result
+
+    def set_article_status(self, article_id, status):
+        self.cursor.execute("UPDATE articles "
+                            "SET status=%s "
+                            "WHERE article_id=%s;", (status, article_id))
+        self.con.commit()
+
+    def delete_article(self, article_id):
+        self.cursor.execute("DELETE "
+                            "FROM articles "
+                            "WHERE article_id=%s;", (article_id, ))
+        self.con.commit()
 
     def add_topics(self, topics):
         arg_list = []
