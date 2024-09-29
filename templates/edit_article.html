@@ -6,11 +6,32 @@
 <div class="p-4 sm:ml-64" id="article" data-article-id="{{ article[0] }}">
     <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
         <div class="inline-flex items-center">
-            <p class="ml-4 text-4xl font-bold">Write a new article</p>
+            <p class="ml-4 text-4xl font-bold">Edit your article</p>
         </div>
         <div class="inline-flex items-center pr-4">
-            <a href="/articles/preview/{{ article[0] }}" type="button" data-status="draft" id="save-draft" class="article-action text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Preview</a>
-            <button type="button" data-status="draft" id="save-draft" class="article-action text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Draft</button>
+            <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownDots" class="inline-flex justify-end items-center p-2 text-sm font-medium text-center text-gray-900 bg-transparent hover:text-gray-700" type="button">
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
+                <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
+                </svg>
+            </button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownDots" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton">
+                    <li>
+                        <button type="button" data-status="draft" id="save-draft"  class="article-action block w-full text-left  px-4 py-2 hover:bg-gray-100">Save Draft</button>
+                    </li>
+                    <li>
+                        <a href="/articles/preview/{{ article[0] }}" class="block px-4 py-2 hover:bg-gray-100">Preview</a>
+                    </li>
+                    <li>
+                        <a href="/articles/new_article" class="block px-4 py-2 hover:bg-gray-100">New Article</a>
+                    </li>
+                </ul>
+                <div class="py-2">
+                  <button type="button" data-id="{{ article[0] }}" class="delete block w-full text-left  px-4 py-2 text-sm text-red-700 hover:bg-red-200">Delete</button>
+                </div>
+            </div>
             <button type="button" data-status="publish" id="published" class="article-action text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Publish</button>
         </div>
     </div>
@@ -19,7 +40,7 @@
     <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="/articles/drafts" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Drafts</a>
+                <a href="/articles/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" aria-current="page">Drafts</a>
             </li>
             <li class="me-2">
                 <a href="/articles/published" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Published</a>
@@ -75,6 +96,22 @@
                     $('#thumb-preview').attr('src', event.target.result);
                 };
                 reader.readAsDataURL(file);
+            }
+        })
+    })
+
+    // Delete Post
+    $('.delete').on('click', function(e){
+        var article_id = $(this).data('id')
+        var article_item = $("#article-item-" + article_id)
+        var article_title = $('#title-' + article_id).text()
+
+        $.ajax({
+            type:'POST',
+            url: '/articles/delete_article/' + article_id,
+            success: function(data){
+                window.location.href = "/articles/new_article"
+
             }
         })
     })

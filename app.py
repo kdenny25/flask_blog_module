@@ -165,16 +165,18 @@ def publish_article():
     oldDir = '/static/uploads/'
 
     for img in all_images:
-        image_name = img.replace(oldDir, "")
-        jinja_tag = "data:image/jpeg;base64,{{ image['" + image_name + "'] }}"
-        content = re.sub(img, jinja_tag, content)
+        if oldDir in img:
+            image_name = img.replace(oldDir, "")
+            jinja_tag = "data:image/jpeg;base64,{{ image['" + image_name + "'] }}"
+            content = re.sub(img, jinja_tag, content)
 
     ###########################
     # Add data to databases
     ###########################
     topic_list = []
     for topic in topics:
-        if topic != '':
+
+        if topic != ' ':
             topic_list.append(topic.strip().lower().title())
     db.add_topics(topic_list)
 

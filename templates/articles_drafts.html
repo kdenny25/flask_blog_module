@@ -64,9 +64,9 @@
             </li>
         {% else %}
             {% for article in drafts %}
-                <li id="article-item-{{ article[0] }}" class="flex border-b-2 border-gray-200 pb-4">
+                <li id="article-item-{{ article[0] }}" class="flex mt-4 border-b-2 border-gray-200 pb-4">
                     <div class="flex items-center justify-center h-48 w-72 bg-gray-300 rounded dark:bg-gray-700">
-                        <img src="data:image/jpeg;base64,{{ images[loop.index0] }}" alt="article thumbnail">
+                        <img class="rounded object-contain" src="data:image/jpeg;base64,{{ images[loop.index0] }}" alt="article thumbnail">
                     </div>
                     <div class="grid grid-cols-1 content-start w-full mx-4">
                         <div class="inline-flex w-full justify-between">
