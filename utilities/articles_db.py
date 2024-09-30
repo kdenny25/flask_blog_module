@@ -8,6 +8,7 @@ class ArticleDb:
         self.create_gin_index()
         self.create_article_images_table()
         self.create_topics_table()
+        self.create_topic_assignments_table()
 
 
     def create_article_table(self):
@@ -20,7 +21,6 @@ class ArticleDb:
                             "time_updated TIME, "
                             "title VARCHAR(100) NOT NULL, "
                             "short_description VARCHAR(150), "
-                            "topics TEXT[], "
                             "thumbnail BYTEA,"
                             "content TEXT,"
                             "content_text TEXT,"
@@ -39,6 +39,12 @@ class ArticleDb:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS topics( "
                             "topic_id SERIAL PRIMARY KEY, "
                             "topic VARCHAR(20) UNIQUE)")
+
+    def create_topic_assignments_table(self):
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS topic_assignments( "
+                            "id SERIAL PRIMARY KEY, "
+                            "article_id INT REFERENCES articles(article_id),"
+                            "topic_id INT REFERENCES topics(topic_id) )")
 
 
     def create_gin_index(self):
@@ -84,37 +90,75 @@ class ArticleDb:
         return image_dict
 
     def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content, text_content):
-        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content, content_text) "
+        self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, thumbnail, content, content_text) "
                             "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                            (article_id, status, date_created, time_created, title, short_description, topics, psycopg2.Binary(thumbnail), content, text_content))
+                            (article_id, status, date_created, time_created, title, short_description, psycopg2.Binary(thumbnail), content, text_content))
         self.con.commit()
 
     def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content, text_content):
         self.cursor.execute("UPDATE articles "
-                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, thumbnail=%s, content=%s, content_text=%s "
-                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, topics, psycopg2.Binary(thumbnail), content, text_content, article_id))
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, thumbnail=%s, content=%s, content_text=%s "
+                            "WHERE article_id=%s;", (status, date_updated, time_updated, title, short_description, psycopg2.Binary(thumbnail), content, text_content, article_id))
         self.con.commit()
 
     def update_article_no_thumb(self, article_id, status, date_updated, time_updated, title, short_description, topics,
                        content, text_content):
         self.cursor.execute("UPDATE articles "
-                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, topics=%s, content=%s, content_text=%s "
+                            "SET status=%s, date_updated=%s, time_updated=%s, title=%s, short_description=%s, content=%s, content_text=%s "
                             "WHERE article_id=%s;", (
-                            status, date_updated, time_updated, title, short_description, topics,
+                            status, date_updated, time_updated, title, short_description,
                             content, text_content, article_id))
         self.con.commit()
 
     def get_articles(self, status):
-        self.cursor.execute("SELECT article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
-                            "FROM articles "
-                            "WHERE status=%s;", (status,))
+        self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
+                                "FROM articles x "
+                                "JOIN ( SELECT topic_assignments.article_id, array_agg(topic) as topics "
+                                    "FROM topic_assignments "
+                                    "JOIN topics ON topics.topic_id = topic_assignments.topic_id "
+                                    "GROUP BY topic_assignments.article_id) "
+                                    "AS y ON x.article_id = y.article_id "
+                                "WHERE status=%s ", (status,))
+        results = self.cursor.fetchall()
+        return results
+
+
+    #todo: fix this
+    def query_articles_by_topic(self,status, topic):
+        self.cursor.execute("WITH "
+                                "articleTable (article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content) "
+                                "AS ( "
+                                    "SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
+                                    "FROM articles x "
+                                    "JOIN ( SELECT topic_assignments.article_id, array_agg(topic) as topics " 
+                                        "FROM topic_assignments "
+                                        "JOIN topics ON topics.topic_id = topic_assignments.topic_id "
+                                        "GROUP BY topic_assignments.article_id) "
+                                        "AS y ON x.article_id = y.article_id "
+                                    "WHERE status=%s "
+                                    "), "
+                                "topicTable (article_id) "
+                                "AS ( "
+                                    "SELECT ta.article_id "
+                                    "FROM topic_assignments AS ta "
+                                    "JOIN topics ON topics.topic_id = ta.topic_id "
+                                    "WHERE topic = %s "
+                                ") "
+                            "SELECT tt.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
+                            "FROM topicTable AS tt "
+                            "LEFT JOIN articleTable AS at ON at.article_id = tt.article_id", (status, topic))
         results = self.cursor.fetchall()
         return results
 
     def get_article(self, article_id):
-        self.cursor.execute("SELECT article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
-                            "FROM articles "
-                            "WHERE article_id=%s;", (article_id,))
+        self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
+                                "FROM articles x "
+                                "JOIN ( SELECT topic_assignments.article_id, array_agg(topic) as topics "
+                                    "FROM topic_assignments "
+                                    "JOIN topics ON topics.topic_id = topic_assignments.topic_id "
+                                    "GROUP BY topic_assignments.article_id) "
+                                    "AS y ON x.article_id = y.article_id "
+                                "WHERE x.article_id=%s ", (article_id,))
         results = self.cursor.fetchone()
         return results
 

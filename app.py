@@ -55,6 +55,16 @@ def browse_articles():  # put application's code here
         images.append(bytes(draft[9]).decode('utf-8'))
     return render_template('browse_articles.html', articles=articles, thumbnails=images, topics=topics)
 
+@app.route('/articles/read/<id>')
+def read_article(id):
+    article = db.get_article(id)
+    images = db.get_article_images(id)
+    thumbnail = bytes(article[9]).decode('utf-8')
+
+    article_con = Environment(loader=BaseLoader).from_string(article[10])
+    content = render_template(article_con, image=images)
+
+    return render_template('article_view.html', article=article, thumbnail=thumbnail, image=images, content=content)
 @app.route('/articles/drafts')
 def posts_drafts():
     drafts = [list(draft) for draft in db.get_articles('draft')]
