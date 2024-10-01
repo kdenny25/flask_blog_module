@@ -26,7 +26,7 @@
             <div class="text-gray-800 font-medium">Filter by topic:</div>
             {% for topic in topics %}
                 <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
-                {{ topic }}
+                {{ topic[0] }} ({{ topic[1] }})
                 </span>
             {% endfor %}
         </div>

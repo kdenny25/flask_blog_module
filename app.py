@@ -189,25 +189,18 @@ def publish_article():
     ###########################
     # Add data to databases
     ###########################
-    topic_list = []
-    for topic in topics:
-
-        if topic != ' ':
-            topic_list.append(topic.strip().lower().title())
-
 
     if db.check_article_exists(article_id) == True:
         if image != None:
-            db.update_article(article_id, status, date_created, time_created, title, description, topic_list, image,
+            db.update_article(article_id, status, date_created, time_created, title, description, topics, image,
                               content, text_content)
         else:
-            db.update_article_no_thumb(article_id, status, date_created, time_created, title, description, topic_list,
+            db.update_article_no_thumb(article_id, status, date_created, time_created, title, description, topics,
                                        content, text_content)
     else:
-        db.add_article(article_id, status, date_created, time_created, title, description, topic_list, image, content,
+        db.add_article(article_id, status, date_created, time_created, title, description, topics, image, content,
                        text_content)
 
-    db.add_topics(topic_list)
 
     return jsonify(results=article_id)
 
