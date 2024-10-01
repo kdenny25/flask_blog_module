@@ -55,6 +55,31 @@ def browse_articles():  # put application's code here
         images.append(bytes(draft[9]).decode('utf-8'))
     return render_template('browse_articles.html', articles=articles, thumbnails=images, topics=topics)
 
+@app.get('/articles/browse/topic/<topic>')
+def articles_by_topic(topic):
+    articles = [list(article) for article in db.query_articles_by_topic('publish', topic)]
+
+    rendered_articles = ''
+    for article in articles:
+        thumbnail = bytes(article[9]).decode('utf-8')
+        rendered = render_template('components/article_cards.html', article=article, thumbnail=thumbnail)
+        rendered_articles += ''.join(rendered)
+
+    return rendered_articles
+
+@app.get('/articles/browse/all')
+def articles_all():
+    articles = [list(article) for article in db.get_articles('publish')]
+
+    rendered_articles = ''
+    for article in articles:
+        thumbnail = bytes(article[9]).decode('utf-8')
+        rendered = render_template('components/article_cards.html', article=article, thumbnail=thumbnail)
+        rendered_articles += ''.join(rendered)
+
+    return rendered_articles
+
+
 @app.route('/articles/read/<id>')
 def read_article(id):
     article = db.get_article(id)

@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="mt-20 mx-8">
-    <div class="grid grid-cols-1 py-8 px-8 lg:py-16 bg-white dark:bg-gray-900">
+<div class="mt-20 sm:mx-8">
+    <div class="grid grid-cols-1 py-8 px-2 sm:px-8 lg:py-16 bg-white dark:bg-gray-900">
         <h2 class="text-gray-900 dark:text-white text-3xl font-extrabold mb-6">Articles</h2>
 
         <!-- Search Bar -->
@@ -15,7 +15,7 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                         </svg>
                     </div>
-                    <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Mockups, Logos..." required />
+                    <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Articles..." required />
                     <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
                 </div>
             </form>
@@ -24,18 +24,23 @@
         <!-- Filter by topics -->
         <div class="mb-5 pb-5 border-b border-gray-100 w-full">
             <div class="text-gray-800 font-medium">Filter by topic:</div>
-            {% for topic in topics %}
-                <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
-                {{ topic[0] }} ({{ topic[1] }})
+            <div class="flex flex-wrap">
+                <span id="clear-filters" style="display: none" class="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 border border-gray-500 bg-gray-100 text-gray-800 hover:bg-gray-300 hover:cursor-pointer">
+                    Clear Filters
                 </span>
-            {% endfor %}
+                {% for topic in topics %}
+                    <span data-topic="{{ topic[0] }}" class="topic-filter text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 border border-gray-500 bg-green-100 text-green-800 hover:bg-green-300 hover:cursor-pointer">
+                    {{ topic[0] }} ({{ topic[1] }})
+                    </span>
+                {% endfor %}
+            </div>
         </div>
 
 
         <!-- Articles  -->
-        <div class="flex flex-wrap gap-8">
+        <ul id="articles" class="flex flex-wrap gap-8">
             {% if articles|length == 0 %}
-                <div class="h-[400px] sm:w-72 mb-8">
+                <div class="h-auto sm:w-72 mb-8">
                     <div class="flex items-center justify-center h-48 mb-4 bg-gray-300 rounded dark:bg-gray-700">
                         <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                             <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
@@ -64,37 +69,70 @@
                 </div>
             {% else %}
                 {% for article in articles %}
-                    <div class="flex-col sm:w-72 mb-8 rounded-lg shadow-lg">
-                        <div class="mb-4">
-                            <img class="rounded-lg h-48 w-full object-fill" src="data:image/jpeg;base64,{{ thumbnails[loop.index0] }}" alt="article thumbnail">
+                    <li>
+                        <div class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
+                            <div class="mb-4 max-sm:hidden">
+                                <img class="rounded-lg h-48 w-full object-fill" src="data:image/jpeg;base64,{{ thumbnails[loop.index0] }}" alt="article thumbnail">
+                            </div>
+                            <div class="px-2">
+                                <div class="category max-sm:hidden sm:w-full mb-4 text-green-600">
+                                    {% for topic in article[8] %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
+                                        {{ topic }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                                <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
+                                    <a id="title-{{ article[0] }}" href="/articles/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
+                                    {{ article[6] }}
+                                </a>
+                                </div>
+                                <div class="date max-sm:hidden w-auto mb-4 text-gray-600 text-sm">
+                                    Created on {{ article[2] }} at {{ article[3] }}
+                                </div>
+                                <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
+                                    {{ article[7] }}
+                                </div>
+                                <div class="read-more w-full mb-4 text-blue-700 ">
+                                    <a href="/articles/read/{{ article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="px-2 h-auto">
-                            <div class="category w-full mb-4 text-green-600">
-                                {% for topic in article[8] %}
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
-                                    {{ topic }}
-                                    </span>
-                                {% endfor %}
-                            </div>
-                            <div class="w-full mb-4 text-gray-800 text-lg font-medium">
-                                <a id="title-{{ article[0] }}" href="/articles/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
-                                {{ article[6] }}
-                            </a>
-                            </div>
-                            <div class="date w-full mb-4 text-gray-600 text-sm">
-                                Created on {{ article[2] }} at {{ article[3] }}
-                            </div>
-                            <div class="description w-full mb-4 text-gray-600 text">
-                                {{ article[7] }}
-                            </div>
-                            <div class="read-more w-full mb-4 text-blue-700 ">
-                                <a href="/articles/read/{{ article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
-                            </div>
-                        </div>
-                    </div>
+                    </li>
                 {% endfor %}
             {% endif %}
-        </div>
-    </section>
+        </ul>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$('.topic-filter').on('click', function(e){
+    var topic = $(this).data('topic')
+    console.log(topic)
+    $.ajax({
+        url:"/articles/browse/topic/" + topic,
+        type: "GET",
+        dataType: 'html',
+        success: function(data){
+            $('#articles').empty().append(data)
+            $('#clear-filters').show()
+        }
+    })
+})
+
+$('#clear-filters').on('click', function(e){
+    $.ajax({
+        url:"/articles/browse/all",
+        type: "GET",
+        dataType: 'html',
+        success: function(data){
+            $('#articles').empty().append(data)
+            $('#clear-filters').hide()
+        }
+    })
+})
+
+</script>
 {% endblock %}

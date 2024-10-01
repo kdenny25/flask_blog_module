@@ -1,0 +1,30 @@
+<li>
+    <div class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
+        <div class="mb-4 max-sm:hidden">
+            <img class="rounded-lg h-48 w-full object-fill" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
+        </div>
+        <div class="px-2">
+            <div class="category max-sm:hidden sm:w-full mb-4 text-green-600">
+                {% for topic in article[8] %}
+                    <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
+                    {{ topic }}
+                    </span>
+                {% endfor %}
+            </div>
+            <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
+                <a id="title-{{ article[0] }}" href="/articles/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
+                {{ article[6] }}
+            </a>
+            </div>
+            <div class="date max-sm:hidden w-auto mb-4 text-gray-600 text-sm">
+                Created on {{ article[2] }} at {{ article[3] }}
+            </div>
+            <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
+                {{ article[7] }}
+            </div>
+            <div class="read-more w-full mb-4 text-blue-700 ">
+                <a href="/articles/read/{{ article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
+            </div>
+        </div>
+    </div>
+</li>
