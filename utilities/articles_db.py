@@ -146,6 +146,18 @@ class ArticleDb:
         results = self.cursor.fetchall()
         return results
 
+    def search_articles(self, status, search):
+        self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content " 
+                                "FROM articles AS x "
+                                "JOIN (SELECT article_id, array_agg(topic) as topics "
+                                    "FROM topic_assignments "
+                                    "GROUP BY article_id) "
+                                    "AS y ON x.article_id = y.article_id "
+                                "WHERE status=%s AND x.text_searchable_index @@ phraseto_tsquery('english', %s) "
+                                "ORDER BY date_created DESC ", (status, search))
+        results = self.cursor.fetchall()
+        return results
+
     def get_article(self, article_id):
         self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
                                 "FROM articles x "

@@ -79,6 +79,22 @@ def articles_all():
 
     return rendered_articles
 
+@app.get('/articles/browse/search/', defaults={'search': None})
+@app.get('/articles/browse/search/<search>')
+def articles_search(search):
+    if not search:
+        print("blank")
+        articles = [list(article) for article in db.get_articles('publish')]
+    else:
+        articles = [list(article) for article in db.search_articles('publish', search)]
+
+    rendered_articles = ''
+    for article in articles:
+        thumbnail = bytes(article[9]).decode('utf-8')
+        rendered = render_template('components/article_cards.html', article=article, thumbnail=thumbnail)
+        rendered_articles += ''.join(rendered)
+
+    return rendered_articles
 
 @app.route('/articles/read/<id>')
 def read_article(id):

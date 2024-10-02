@@ -1,58 +1,133 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="p-4 sm:ml-64">
-    <div class="flex w-full justify-end mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
-        <div class="items-center pr-4">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-            </svg>
+<div class="mt-20 sm:mx-8">
+    <div class="grid grid-cols-1 py-8 px-2 sm:px-8 lg:py-16 bg-white dark:bg-gray-900">
+        <div class="flex w-full justify-start mb-2 mt-14 py-2 pl-4">
+            <button id="back-button" type="button" class="items-center pr-4 text-gray-800 hover:text-gray-600">
+                <svg class="w-10 h-10" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
+                </svg>
+
+            </button>
+        </div>
+
+        <h1 class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">{{ article[6] }}</h1>
+        {% if article[4] == None %}
+            <p class="text-base text-gray-500 dark:text-gray-400">Created on {{ article[2] }} at {{ article[3] }}</p>
+        {% else %}
+            <p class="text-base text-gray-500 dark:text-gray-400">Updated on {{ article[4] }} at {{ article[5] }}</p>
+        {% endif %}
+
+        <div class="flex content-center justify-between mt-4 px-4 py-4 bg-gray-100">
+            <div>
+                <a href="#" class="inline-flex text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
+                    </svg>
+                    <span class="sr-only">Like this Article</span>
+                    <span>150</span>
+                </a>
+            </div>
+            <div class="flex content-center sm:justify-center">
+                <a href="#" class="text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 17">
+                        <path fill-rule="evenodd" d="M6.135 3H8V0H6.135a4.147 4.147 0 0 0-4.142 4.142V6H0v3h2v9.938h3V9h2.021l.592-3H5V3.591A.6.6 0 0 1 5.592 3h.543Z" clip-rule="evenodd"/>
+                    </svg>
+                  <span class="sr-only">Facebook page</span>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 21 16">
+                        <path d="M16.942 1.556a16.3 16.3 0 0 0-4.126-1.3 12.04 12.04 0 0 0-.529 1.1 15.175 15.175 0 0 0-4.573 0 11.585 11.585 0 0 0-.535-1.1 16.274 16.274 0 0 0-4.129 1.3A17.392 17.392 0 0 0 .182 13.218a15.785 15.785 0 0 0 4.963 2.521c.41-.564.773-1.16 1.084-1.785a10.63 10.63 0 0 1-1.706-.83c.143-.106.283-.217.418-.33a11.664 11.664 0 0 0 10.118 0c.137.113.277.224.418.33-.544.328-1.116.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595 17.286 17.286 0 0 0-2.973-11.59ZM6.678 10.813a1.941 1.941 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.919 1.919 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Zm6.644 0a1.94 1.94 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.918 1.918 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Z"/>
+                    </svg>
+                  <span class="sr-only">Discord community</span>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 17">
+                        <path fill-rule="evenodd" d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="sr-only">Twitter page</span>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-gray-900 dark:hover:text-white ms-5">
+                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12.008 16.521a3.84 3.84 0 0 0 2.47-.77v.04a.281.281 0 0 0 .005-.396.281.281 0 0 0-.395-.005 3.291 3.291 0 0 1-2.09.61 3.266 3.266 0 0 1-2.081-.63.27.27 0 0 0-.38.381 3.84 3.84 0 0 0 2.47.77Z"/>
+                        <path fill="currentColor" fill-rule="evenodd" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Zm-4.845-1.407A1.463 1.463 0 0 1 18.67 12a1.46 1.46 0 0 1-.808 1.33c.01.146.01.293 0 .44 0 2.242-2.61 4.061-5.829 4.061s-5.83-1.821-5.83-4.061a3.25 3.25 0 0 1 0-.44 1.458 1.458 0 0 1-.457-2.327 1.458 1.458 0 0 1 2.063-.064 7.163 7.163 0 0 1 3.9-1.23l.738-3.47v-.006a.31.31 0 0 1 .37-.236l2.452.49a1 1 0 1 1-.132.611l-2.14-.45-.649 3.12a7.11 7.11 0 0 1 3.85 1.23c.259-.246.6-.393.957-.405Z" clip-rule="evenodd"/>
+                        <path fill="currentColor" d="M15.305 13a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-4.625 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
+                    </svg>
+                    <span class="sr-only">Reddit page</span>
+              </a>
+          </div>
+        </div>
+        <div class="text-gray-700 w-full">
+            <div class="flex items-center justify-center w-full">
+                <img class="h-72 my-6" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
+            </div>
+            <div class="prose max-w-none mt-4 w-full">
+                {{ content|safe }}
+            </div>
 
         </div>
+
+        <div class="gap-8 border-t border-gray-300 mt-10 pt-8">
+             <h2 class="text-gray-900 dark:text-white text-3xl font-extrabold mb-6">Related Articles</h2>
+            <ul class="flex flex-wrap">
+                <li class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
+                    <div class="mb-4 max-sm:hidden bg-gray-300 rounded dark:bg-gray-700">
+                        <div class="flex items-center justify-center rounded-lg h-48 w-full object-fill ">
+                            <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                                <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="px-2">
+                        <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
+                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
+                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
+                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[120px] mb-2.5"></div>
+                        </div>
+                        <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
+                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
+                        </div>
+                        <div class="read-more w-full mb-4 text-blue-700">
+                            <div class="h-2 bg-blue-700 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <footer class="w-full mt-8 border-t border-gray-300 ">
+            <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+              <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="" class="hover:underline">Blog</a>. All Rights Reserved.
+            </span>
+            <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+                <li>
+                    <a href="#" class="hover:underline me-4 md:me-6">About</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline me-4 md:me-6">Privacy Policy</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline me-4 md:me-6">Licensing</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline">Contact</a>
+                </li>
+            </ul>
+            </div>
+        </footer>
     </div>
-
-    <h1 class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">{{ article[6] }}</h1>
-    {% if article[4] == None %}
-        <p class="text-base text-gray-500 dark:text-gray-400">Created on {{ article[2] }} at {{ article[3] }}</p>
-    {% else %}
-        <p class="text-base text-gray-500 dark:text-gray-400">Updated on {{ article[4] }} at {{ article[5] }}</p>
-    {% endif %}
-
-    <div class="text-gray-700 w-full">
-        <div class="flex items-center justify-center w-full">
-            <img class="h-72 my-6" src="data:image/jpeg;base64,{{ thumbnail }}" alt="article thumbnail">
-        </div>
-        <div class="prose max-w-none mt-4 w-full">
-            {{ content|safe }}
-        </div>
-
-    </div>
-
-
-    <footer class="w-full border-t border-gray-300 ">
-        <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="" class="hover:underline">Blog</a>. All Rights Reserved.
-        </span>
-        <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
-            <li>
-                <a href="#" class="hover:underline me-4 md:me-6">About</a>
-            </li>
-            <li>
-                <a href="#" class="hover:underline me-4 md:me-6">Privacy Policy</a>
-            </li>
-            <li>
-                <a href="#" class="hover:underline me-4 md:me-6">Licensing</a>
-            </li>
-            <li>
-                <a href="#" class="hover:underline">Contact</a>
-            </li>
-        </ul>
-        </div>
-    </footer>
 </div>
 
 {% endblock %}
 
 {% block scripts %}
-
+<script>
+    $('#back-button').on('click', function(e){
+        window.location = document.referrer;
+    })
+</script>
 {% endblock %}
