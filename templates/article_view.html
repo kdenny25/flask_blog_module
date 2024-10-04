@@ -69,33 +69,58 @@
         </div>
 
         <div class="gap-8 border-t border-gray-300 mt-10 pt-8">
-             <h2 class="text-gray-900 dark:text-white text-3xl font-extrabold mb-6">Related Articles</h2>
-            <ul class="flex flex-wrap">
-                <li class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
-                    <div class="mb-4 max-sm:hidden bg-gray-300 rounded dark:bg-gray-700">
-                        <div class="flex items-center justify-center rounded-lg h-48 w-full object-fill ">
-                            <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                                <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
-                            </svg>
+            <h2 class="text-gray-900 dark:text-white text-3xl font-extrabold mb-6">Related Articles</h2>
+            <ul class="flex flex-wrap gap-5">
+                {% if related_articles|length == 0 %}
+                    <li class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
+                        <div class="mb-4 max-sm:hidden bg-gray-300 rounded dark:bg-gray-700">
+                            <div class="flex items-center justify-center rounded-lg h-48 w-full object-fill ">
+                                <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <div class="px-2">
-                        <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
-                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
-                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
-                            <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[120px] mb-2.5"></div>
+                        <div class="px-2">
+                            <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
+                                <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
+                                <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[280px] mb-2.5"></div>
+                                <div class="h-3 bg-gray-600 rounded-full dark:bg-gray-700 max-w-[120px] mb-2.5"></div>
+                            </div>
+                            <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
+                                <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                                <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                                <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
+                                <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
+                            </div>
+                            <div class="read-more w-full mb-4 text-blue-700">
+                                <div class="h-2 bg-blue-700 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
+                            </div>
                         </div>
-                        <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
-                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
-                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
-                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[240px] mb-2.5"></div>
-                            <div class="h-2 bg-gray-400 rounded-full dark:bg-gray-700 max-w-[160px]"></div>
-                        </div>
-                        <div class="read-more w-full mb-4 text-blue-700">
-                            <div class="h-2 bg-blue-700 rounded-full dark:bg-gray-700 max-w-[100px] mb-2.5"></div>
-                        </div>
-                    </div>
-                </li>
+                    </li>
+                {% else %}
+                    {% for related_article in related_articles %}
+                        <li class="h-auto max-sm:flex w-full sm:w-72 pb-2 rounded-lg shadow-lg">
+                            <div class="mb-4 max-sm:hidden bg-gray-300 rounded dark:bg-gray-700">
+                                <div class="flex items-center justify-center rounded-lg h-48 w-full object-fill ">
+                                    <img class="rounded-lg h-48 w-full object-fill" src="data:image/jpeg;base64,{{ related_thumbnails[loop.index0] }}" alt="article thumbnail">
+                                </div>
+                            </div>
+                            <div class="px-2">
+                                <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
+                                    <a id="title-{{ related_article[0] }}" href="/articles/edit_article/{{ related_article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
+                                    {{ related_article[6] }}
+                                    </a>
+                                </div>
+                                <div class="description sm:w-full mb-4 text-gray-600  text-sm sm:text">
+                                    {{ related_article[7] }}
+                                </div>
+                                <div class="read-more w-full mb-4 text-blue-700">
+                                    <a href="/articles/read/{{ related_article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% endif %}
             </ul>
         </div>
 

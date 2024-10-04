@@ -12,6 +12,7 @@ from datetime import datetime
 import re
 import os
 import base64
+import random
 
 # os.system("npm run")
 config = dotenv_values('.env')
@@ -102,10 +103,20 @@ def read_article(id):
     images = db.get_article_images(id)
     thumbnail = bytes(article[9]).decode('utf-8')
 
+
+    # generate a list of related articles by randomly selecting a topic from the topic list
+    topic_int = random.randint(0, len(article[8])-1)
+    related_articles = [list(draft) for draft in db.query_related_articles('publish', article[8][topic_int], id)]
+    related_images = []
+
+    for idx, draft in enumerate(related_articles):
+        related_images.append(bytes(draft[9]).decode('utf-8'))
+
     article_con = Environment(loader=BaseLoader).from_string(article[10])
     content = render_template(article_con, image=images)
 
-    return render_template('article_view.html', article=article, thumbnail=thumbnail, image=images, content=content)
+    return render_template('article_view.html', article=article, thumbnail=thumbnail, image=images,
+                           content=content, related_articles=related_articles, related_thumbnails=related_images)
 @app.route('/articles/drafts')
 def posts_drafts():
     drafts = [list(draft) for draft in db.get_articles('draft')]

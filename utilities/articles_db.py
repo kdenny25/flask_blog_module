@@ -146,6 +146,33 @@ class ArticleDb:
         results = self.cursor.fetchall()
         return results
 
+    def query_related_articles(self, status, topic, article_id):
+        self.cursor.execute("WITH "
+                                "articleTable (article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content) "
+                                "AS ( "
+                                    "SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
+                                    "FROM articles x "
+                                    "JOIN ( SELECT article_id, array_agg(topic) as topics " 
+                                        "FROM topic_assignments "
+                                        "GROUP BY article_id) "
+                                        "AS y ON x.article_id = y.article_id "
+                                    "WHERE status=%s "
+                                    "), "
+                                "topicTable (article_id) "
+                                "AS ( "
+                                    "SELECT article_id "
+                                    "FROM topic_assignments "
+                                    "WHERE topic = %s "
+                                ") "
+                            "SELECT tt.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, topics, thumbnail, content "
+                            "FROM topicTable AS tt "
+                            "LEFT JOIN articleTable AS at ON at.article_id = tt.article_id "
+                            "WHERE tt.article_id != %s"
+                            "ORDER BY RANDOM() "
+                            "LIMIT 5", (status, topic, article_id))
+        results = self.cursor.fetchall()
+        return results
+
     def search_articles(self, status, search):
         self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content " 
                                 "FROM articles AS x "
