@@ -1,4 +1,5 @@
 import psycopg2
+from datetime import datetime
 
 class ArticleDb:
     def __init__(self, connection_string):
@@ -8,6 +9,7 @@ class ArticleDb:
         self.create_gin_index()
         self.create_article_images_table()
         self.create_topic_assignments_table()
+        self.create_likes_table()
 
 
     def create_article_table(self):
@@ -40,6 +42,12 @@ class ArticleDb:
                             "article_id INT REFERENCES articles(article_id),"
                             "topic VARCHAR(20) NOT NULL)")
 
+    def create_likes_table(self):
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS article_likes( "
+                            "like_id SERIAL PRIMARY KEY, "
+                            "date_liked DATE NOT NULL, "
+                            "article_id INT REFERENCES articles(article_id), "
+                            "user_id INT)") # change user_id in final app to avoid errors
 
     def create_gin_index(self):
         """creates the gin index on articles table to improve article search speeds"""
@@ -275,3 +283,56 @@ class ArticleDb:
             topic_list.append([result[0], result[1]])
 
         return topic_list
+
+    def add_like(self, article_id, user_id):
+        """Adds a like to an article"""
+
+        date = datetime.today()
+        self.cursor.execute("INSERT INTO article_likes(date_liked, article_id, user_id) "
+                            "SELECT %s, %s, %s "
+                            "WHERE NOT EXISTS ("
+                                "SELECT article_id, user_id "
+                                "FROM article_likes "
+                                "WHERE article_id = %s AND user_id = %s) ", (date, article_id, user_id, article_id, user_id))
+        self.con.commit()
+
+        result = self.get_like_count(article_id, user_id)
+
+        return result
+
+    def remove_like(self, article_id, user_id):
+        """Subtracts a like from an article"""
+        self.cursor.execute("DELETE "
+                            "FROM article_likes "
+                            "WHERE article_id = %s AND user_id = %s", (article_id, user_id))
+        self.con.commit()
+
+        result = self.get_like_count(article_id, user_id)
+
+        return result
+
+    def get_like_count(self, article_id, user_id=None):
+        """Returns the count of  likes for specified article and if registered user is viewing return if user liked
+        article"""
+        self.cursor.execute("WITH "
+                                "user_liked(article_id, liked_by_user) "
+                            "AS ( "
+                                "SELECT article_id, EXISTS( "
+                                    "SELECT 1 "
+                                    "FROM article_likes "
+                                    "WHERE user_id = %s and article_id=%s ) "
+                                "FROM article_likes "
+                                "WHERE article_id=%s and user_id=%s) "
+                            "SELECT COUNT(al.article_id), ul.liked_by_user "
+                            "FROM article_likes AS al "
+                            "LEFT JOIN user_liked AS ul ON al.article_id = ul.article_id "
+                            "WHERE al.article_id = %s "
+                            "GROUP BY ul.liked_by_user ", (user_id, article_id, article_id, user_id, article_id))
+
+        result = self.cursor.fetchone()
+
+        print(result)
+        if result == None:
+            result = (0, False)
+
+        return result

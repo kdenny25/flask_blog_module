@@ -102,7 +102,10 @@ def read_article(id):
     article = db.get_article(id)
     images = db.get_article_images(id)
     thumbnail = bytes(article[9]).decode('utf-8')
+    user_id = 0 #todo: change this when implementing
 
+    # generate likes count
+    likes_btn = db.get_like_count(id, user_id)
 
     # generate a list of related articles by randomly selecting a topic from the topic list
     topic_int = random.randint(0, len(article[8])-1)
@@ -116,7 +119,30 @@ def read_article(id):
     content = render_template(article_con, image=images)
 
     return render_template('article_view.html', article=article, thumbnail=thumbnail, image=images,
-                           content=content, related_articles=related_articles, related_thumbnails=related_images)
+                           content=content, related_articles=related_articles, related_thumbnails=related_images,
+                           liked=likes_btn)
+
+
+@app.get('/articles/like_article')
+def like_article():
+    article_id = request.args.get('article_id')
+    user_id = request.args.get('user_id')
+    user_liked = request.args.get('user_liked')
+
+    if user_liked == 'False': # meaning the user did not like the article prior to clicking the button
+        results = db.add_like(article_id, user_id)
+    else:
+        results = db.remove_like(article_id, user_id)
+
+    btn_render = render_template("components/like_button.html", liked=results)
+
+    return jsonify(btn_render)
+
+##############################################
+#
+# ADMINISTRATIVE COMMANDS
+#
+###############################################
 @app.route('/articles/drafts')
 def posts_drafts():
     drafts = [list(draft) for draft in db.get_articles('draft')]
@@ -188,6 +214,7 @@ def upload_image():
     db.add_article_image(article_id, unique_identifier, filename, image)
 
     return jsonify({'location': "/static/uploads/"+filename})
+
 
 @app.post('/articles/set_published/<id>')
 def set_published(id):
