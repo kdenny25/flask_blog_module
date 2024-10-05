@@ -20,7 +20,7 @@ class ArticleDb:
                             "time_created TIME NOT NULL, "
                             "date_updated DATE, "
                             "time_updated TIME, "
-                            "title VARCHAR(100) NOT NULL, "
+                            "title VARCHAR(100), "
                             "short_description VARCHAR(150), "
                             "thumbnail BYTEA,"
                             "content TEXT,"
@@ -92,11 +92,13 @@ class ArticleDb:
         return image_dict
 
     def add_article(self, article_id, status, date_created, time_created, title, short_description, topics, thumbnail, content, text_content):
-        self.add_topics(article_id, topics)
+
 
         self.cursor.execute("INSERT INTO articles(article_id, status, date_created, time_created, title, short_description, thumbnail, content, content_text) "
-                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (article_id, status, date_created, time_created, title, short_description, psycopg2.Binary(thumbnail), content, text_content))
+
+        self.add_topics(article_id, topics)
         self.con.commit()
 
     def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content, text_content):
@@ -121,7 +123,7 @@ class ArticleDb:
     def get_articles(self, status):
         self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
                                 "FROM articles x "
-                                "JOIN ( SELECT article_id, array_agg(topic) as topics "
+                                "LEFT JOIN ( SELECT article_id, array_agg(topic) as topics "
                                     "FROM topic_assignments "
                                     "GROUP BY article_id) "
                                     "AS y ON x.article_id = y.article_id "

@@ -6,10 +6,11 @@
 {% block style %}
 {% endblock %}
 {% block content %}
-<div class="p-4 sm:ml-64" id="article" data-article-id="{{ article_id }}">
+<div class="p-4 sm:ml-64" id="article" data-article-status="draft" data-article-id="{{ article_id }}">
     <div class="flex justify-between mb-2 mt-14 py-2 pl-4 dark:bg-gray-700 text-gray-900 dark:text-gray-400">
-        <div class="inline-flex items-center">
+        <div class="inline-flex">
             <p class="ml-4 text-4xl font-bold">Write a new article</p>
+            <span id="save-msg" class="ml-4 self-end"></span>
         </div>
         <div class="inline-flex items-center pr-4">
             <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownDots" class="inline-flex justify-end items-center p-2 text-sm font-medium text-center text-gray-900 bg-transparent hover:text-gray-700" type="button">
@@ -50,22 +51,22 @@
 
     <form id="article-details" method="post" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 rounded-lg dark:border-gray-700  divide-gray-200 mt-8 dark:divide-gray-700">
         <div>
-            <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-            <input type="text" id="title" maxlength="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
+            <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title <span id="title-alert" style="display: none" class="ml-3 text-red-600">Hey! You're missing the title. Add it so we can save your article.</span></label>
+            <input type="text" id="title" maxlength="100" class="saveOnChange bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Title" required />
             <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="title-count">0</div>/100</div>
         </div>
         <div>
             <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Short Description</label>
-            <textarea id="description" rows="3" maxlength="150" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short description here..."></textarea>
+            <textarea id="description" rows="3" maxlength="150" class="saveOnChange block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write a short description here..."></textarea>
             <div class="inline-flex mt-1 text-sm text-gray-500 dark:text-gray-300" ><div id="description-count">0</div>/150</div>
         </div>
         <div>
             <label for="topics" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Topics</label>
-            <input type="text" id="topics" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" required />
+            <input type="text" id="topics" class="saveOnChange bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" required />
         </div>
         <div>
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Thumbnail</label>
-            <input  id="file_input" type="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help">
+            <input  id="file_input" type="file" class="saveOnChange block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help">
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
         </div>
         <div>
@@ -82,33 +83,49 @@
 {% block scripts %}
     <script>
         $(".article-action").on('click', function(){
-            var oldDir = '/static/uploads/'
+            var status = $(this).data('status')
 
-            var content = tinymce.get('content').getContent();
-            var text_content = tinymce.get('content').getContent({format: "text"})
-
-            var form_data = new FormData()
-            form_data.append('articleId', $('#article').data('article-id'))
-            form_data.append('status', $(this).data('status'))
-            form_data.append('title', $('#title').val())
-            form_data.append('description', $('#description').val())
-            form_data.append('topics', $('#topics').val())
-            form_data.append('thumbnail', $('#file_input').prop('files')[0])
-            form_data.append('content', content )
-            form_data.append('text_content', text_content)
-
-            $.ajax({
-                type: 'POST',
-                url: '/articles/publish',
-                data: form_data,
-                 contentType: false,
-                 cache: false,
-                 processData: false,
-                success: function(data){
-                    console.log('Success!')
-                }
-            })
+            saveArticle(status)
         })
+    </script>
+    <script>
+    $(".saveOnChange").on('change', function(e){
+        var status = $("#article").data('article-status')
+        saveArticle(status)
+    })
+
+    function saveArticle(status){
+
+        // update save message
+        $('#save-msg').text('(Saving...)')
+
+        var content = tinymce.get('content').getContent();
+        var text_content = tinymce.get('content').getContent({format: "text"})
+
+        var form_data = new FormData()
+        form_data.append('articleId', $('#article').data('article-id'))
+        form_data.append('status', status)
+        form_data.append('title', $('#title').val())
+        form_data.append('description', $('#description').val())
+        form_data.append('topics', $('#topics').val())
+        form_data.append('thumbnail', $('#file_input').prop('files')[0])
+        form_data.append('content', content)
+        form_data.append('text_content', text_content)
+
+        $.ajax({
+            type: 'POST',
+            url: '/articles/publish',
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                console.log('Success!')
+                $('#save-msg').text('(Saved)')
+                $('#article').data('article-status', status)
+            }
+        })
+    }
     </script>
     <script type="text/javascript">
         const example_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {
@@ -210,7 +227,13 @@
 
                 input.click();
               },
-              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            setup: (editor) => {
+                  var status = $("#article").data('article-status')
+                  editor.on('change', (e) => {
+                      saveArticle(status)
+                  })
+            }
         });
     </script>
       <script>

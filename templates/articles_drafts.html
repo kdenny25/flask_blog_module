@@ -81,11 +81,13 @@
                         </div>
 
                          <div class="inline-flex mb-4 w-full text-gray-600 text">
-                            {% for topic in article[8] %}
-                                <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
-                                {{ topic }}
-                                </span>
-                            {% endfor %}
+                            {% if article[8] != None %}
+                                {% for topic in article[8] %}
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500 ">
+                                    {{ topic }}
+                                    </span>
+                                {% endfor %}
+                            {% endif %}
                         </div>
                         <div class="w-full text-gray-700">
                             {{ article[7] }}

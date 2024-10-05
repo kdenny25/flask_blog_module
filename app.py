@@ -149,7 +149,7 @@ def posts_drafts():
     images = []
     for idx, draft in enumerate(drafts):
         images.append(bytes(draft[9]).decode('utf-8'))
-
+    print(drafts)
     return render_template('articles_drafts.html', drafts=drafts, images=images)
 
 @app.route('/articles/published')
@@ -253,7 +253,7 @@ def publish_article():
         with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
             fh.write(base64.decodebytes(image))
     else:
-        image = None
+        image = b""
 
     # replace image filepath with jinja tag
     all_images = re.findall("src=\"(.*?)\"", content)
