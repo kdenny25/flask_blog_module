@@ -1,9 +1,10 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="mt-20 sm:mx-8">
+    <div class="mt-20 sm:mx-8">
     <div class="grid grid-cols-1 py-8 px-2 sm:px-8 lg:py-16 bg-white dark:bg-gray-900">
-        <h2 class="text-gray-900 dark:text-white text-3xl font-extrabold mb-6">Articles</h2>
+        <h2 class="text-[#213A57] dark:text-white text-3xl font-extrabold mb-6">Blog</h2>
+        <a href="/blog/drafts" class="m-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Article Management</a>
 
         <!-- Search Bar -->
         <div class="mb-2 max-w-md pb-2 w-full">
@@ -16,7 +17,7 @@
                         </svg>
                     </div>
                     <input type="search" id="search-term" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Articles..."/>
-                    <button id="search-btn" type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+                    <button id="search-btn" type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-[#FF681E] hover:bg-[#F78C6B] focus:ring-4 focus:outline-none focus:ring-[#FF681E] font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
                 </div>
             </form>
         </div>
@@ -83,7 +84,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="w-auto mb-4 text-gray-800 text-sm sm:text-lg font-medium">
-                                    <a id="title-{{ article[0] }}" href="/articles/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
+                                    <a id="title-{{ article[0] }}" href="/blog/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
                                     {{ article[6] }}
                                 </a>
                                 </div>
@@ -94,7 +95,7 @@
                                     {{ article[7] }}
                                 </div>
                                 <div class="read-more w-full mb-4 text-blue-700 ">
-                                    <a href="/articles/read/{{ article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
+                                    <a href="/blog/read/{{ article[0] }}" class="h-2 underline text-blue-700 hover:text-blue-500 mb-2.5">Read More</a>
                                 </div>
                             </div>
                         </div>
@@ -102,28 +103,7 @@
                 {% endfor %}
             {% endif %}
         </ul>
-
-        <footer class="w-full mt-8 border-t border-gray-300 ">
-            <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-              <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="" class="hover:underline">Blog</a>. All Rights Reserved.
-            </span>
-            <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
-                <li>
-                    <a href="#" class="hover:underline me-4 md:me-6">About</a>
-                </li>
-                <li>
-                    <a href="#" class="hover:underline me-4 md:me-6">Privacy Policy</a>
-                </li>
-                <li>
-                    <a href="#" class="hover:underline me-4 md:me-6">Licensing</a>
-                </li>
-                <li>
-                    <a href="#" class="hover:underline">Contact</a>
-                </li>
-            </ul>
-            </div>
-        </footer>
-
+        {% include 'components/footer2.html' %}
     </div>
 </div>
 {% endblock %}
@@ -134,7 +114,7 @@ $('.topic-filter').on('click', function(e){
     var topic = $(this).data('topic')
     console.log(topic)
     $.ajax({
-        url:"/articles/browse/topic/" + topic,
+        url:"/blog/browse/topic/" + topic,
         type: "GET",
         dataType: 'html',
         success: function(data){
@@ -146,7 +126,7 @@ $('.topic-filter').on('click', function(e){
 
 $('#clear-filters').on('click', function(e){
     $.ajax({
-        url:"/articles/browse/all",
+        url:"/blog/browse/all",
         type: "GET",
         dataType: 'html',
         success: function(data){
@@ -160,7 +140,7 @@ $('#article-search').on('submit', function(e){
     var search_term = $('#search-term').val()
 
     $.ajax({
-        url:"/articles/browse/search/" + search_term,
+        url:"/blog/browse/search/" + search_term,
         type: "GET",
         dataType: 'html',
         success: function(data){

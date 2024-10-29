@@ -1,12 +1,8 @@
 from flask import Blueprint, Flask, request, render_template, redirect, session, jsonify, flash
-from flask_rollup import Bundle
 from jinja2 import Environment, BaseLoader
-from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
 from dotenv import dotenv_values
-from urllib.request import urlopen
-from urllib.parse import urlencode
 from utilities import ArticleDb
 from datetime import datetime
 import re
@@ -22,13 +18,6 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-ckeditor = CKEditor(app)
-# Use when implementing module
-# budgets = Blueprint('budgets', __name__,
-#                            template_folder='templates',
-#                            static_folder='static',
-#                            static_url_path='/static/budgets')
-
 # initialize CSRF protection
 csrf = CSRFProtect(app)
 
@@ -38,16 +27,13 @@ if 'PUBLIC' in os.environ:
     db = ArticleDb(config['LOCAL_DB'])
     app.secret_key = config['SECRET_KEY']
 else:
-    # production
+    # for production. Looks for connection string in environment variables
     print('Loading config.production.')
-
-    # conn_str = current_app.config.get('CONN_STRING')
-
     db = ArticleDb(os.environ['CONN_STRING'])
 
+user_id = 0 #todo: change this when implementing
 
-
-@app.route('/articles/browse')
+@app.route('/')
 def browse_articles():  # put application's code here
     topics = db.get_topics()
     articles = [list(draft) for draft in db.get_articles('publish')]
@@ -56,7 +42,7 @@ def browse_articles():  # put application's code here
         images.append(bytes(draft[9]).decode('utf-8'))
     return render_template('browse_articles.html', articles=articles, thumbnails=images, topics=topics)
 
-@app.get('/articles/browse/topic/<topic>')
+@app.get('/blog/browse/topic/<topic>')
 def articles_by_topic(topic):
     articles = [list(article) for article in db.query_articles_by_topic('publish', topic)]
 
@@ -68,7 +54,7 @@ def articles_by_topic(topic):
 
     return rendered_articles
 
-@app.get('/articles/browse/all')
+@app.get('/blog/browse/all')
 def articles_all():
     articles = [list(article) for article in db.get_articles('publish')]
 
@@ -80,11 +66,10 @@ def articles_all():
 
     return rendered_articles
 
-@app.get('/articles/browse/search/', defaults={'search': None})
-@app.get('/articles/browse/search/<search>')
+@app.get('/blog/browse/search/', defaults={'search': None})
+@app.get('/blog/browse/search/<search>')
 def articles_search(search):
     if not search:
-        print("blank")
         articles = [list(article) for article in db.get_articles('publish')]
     else:
         articles = [list(article) for article in db.search_articles('publish', search)]
@@ -97,12 +82,11 @@ def articles_search(search):
 
     return rendered_articles
 
-@app.route('/articles/read/<id>')
+@app.route('/blog/read/<id>')
 def read_article(id):
     article = db.get_article(id)
     images = db.get_article_images(id)
     thumbnail = bytes(article[9]).decode('utf-8')
-    user_id = 0 #todo: change this when implementing
 
     # generate likes count
     likes_btn = db.get_like_count(id, user_id)
@@ -123,7 +107,7 @@ def read_article(id):
                            liked=likes_btn)
 
 
-@app.get('/articles/like_article')
+@app.get('/blog/like_article')
 def like_article():
     article_id = request.args.get('article_id')
     user_id = request.args.get('user_id')
@@ -143,7 +127,7 @@ def like_article():
 # ADMINISTRATIVE COMMANDS
 #
 ###############################################
-@app.route('/articles/drafts')
+@app.route('/blog/drafts')
 def posts_drafts():
     drafts = [list(draft) for draft in db.get_articles('draft')]
     images = []
@@ -152,7 +136,7 @@ def posts_drafts():
     print(drafts)
     return render_template('articles_drafts.html', drafts=drafts, images=images)
 
-@app.route('/articles/published')
+@app.route('/blog/published')
 def posts_published():
     published = [list(draft) for draft in db.get_articles('publish')]
     images = []
@@ -161,7 +145,7 @@ def posts_published():
 
     return render_template('articles_published.html', published=published, images=images)
 
-@app.route('/articles/new_article')
+@app.route('/blog/new_article')
 def new_article():
     new_id = db.new_article_id()
     try:
@@ -170,9 +154,9 @@ def new_article():
         topics = []
     return render_template('new_article.html', article_id=new_id, topics=topics)
 
-@app.route('/articles/edit_article/<id>')
+@app.route('/blog/edit_article/<id>')
 def edit_article(id):
-    article = db.get_article(id)
+    article = list(db.get_article(id))
     images = db.get_article_images(id)
 
     try:
@@ -180,13 +164,15 @@ def edit_article(id):
     except:
         topics = []
 
+    if article[8] == None:
+        article[8] = []
     article_con = Environment(loader=BaseLoader).from_string(article[10])
     content = render_template(article_con, image=images)
     thumbnail = bytes(article[9]).decode('utf-8')
 
     return render_template('edit_article.html', article=article, thumbnail=thumbnail, topics=topics, image=images, content=content)
 
-@app.route('/articles/preview/<id>')
+@app.route('/blog/preview/<id>')
 def preview_article(id):
     article = db.get_article(id)
     images = db.get_article_images(id)
@@ -216,19 +202,19 @@ def upload_image():
     return jsonify({'location': "/static/uploads/"+filename})
 
 
-@app.post('/articles/set_published/<id>')
+@app.post('/blog/set_published/<id>')
 def set_published(id):
     db.set_article_status(id, 'publish')
 
     return jsonify(results="Success")
 
-@app.post('/articles/delete_article/<id>')
+@app.post('/blog/delete_article/<id>')
 def delete_article(id):
     db.delete_article(id)
 
     return jsonify(results="Success")
 
-@app.post('/articles/publish')
+@app.post('/blog/publish')
 def publish_article():
     article_id = request.form.get('articleId')
     title = request.form.get('title')
@@ -250,10 +236,10 @@ def publish_article():
         # image = thumbnail.read()
         # print(type(image))
 
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], "article_thumbnail.jpg"), "wb") as fh:
-            fh.write(base64.decodebytes(image))
+        # with open(os.path.join(UPLOAD_FOLDER, "article_thumbnail.jpg"), "wb") as fh:
+        #     fh.write(base64.decodebytes(image))
     else:
-        image = b""
+        image = None
 
     # replace image filepath with jinja tag
     all_images = re.findall("src=\"(.*?)\"", content)
@@ -279,7 +265,6 @@ def publish_article():
     else:
         db.add_article(article_id, status, date_created, time_created, title, description, topics, image, content,
                        text_content)
-
 
     return jsonify(results=article_id)
 

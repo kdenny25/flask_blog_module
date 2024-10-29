@@ -26,10 +26,10 @@
                         <button type="button" data-status="draft" id="save-draft"  class="article-action block w-full text-left  px-4 py-2 hover:bg-gray-100">Save Draft</button>
                     </li>
                     <li>
-                        <a href="/articles/preview/{{ article_id }}" class="block px-4 py-2 hover:bg-gray-100">Preview</a>
+                        <a href="/blog/preview/{{ article_id }}" class="block px-4 py-2 hover:bg-gray-100">Preview</a>
                     </li>
                     <li>
-                        <a href="/articles/new_article" class="block px-4 py-2 hover:bg-gray-100">New Article</a>
+                        <a href="/blog/new_article" class="block px-4 py-2 hover:bg-gray-100">New Article</a>
                     </li>
                 </ul>
             </div>
@@ -41,10 +41,10 @@
     <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="/articles/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" aria-current="page">Drafts</a>
+                <a href="/blog/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" aria-current="page">Drafts</a>
             </li>
             <li class="me-2">
-                <a href="/articles/published" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Published</a>
+                <a href="/blog/published" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Published</a>
             </li>
         </ul>
     </div>
@@ -114,7 +114,7 @@
 
         $.ajax({
             type: 'POST',
-            url: '/articles/publish',
+            url: '/blog/publish',
             data: form_data,
             contentType: false,
             cache: false,

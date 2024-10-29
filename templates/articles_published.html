@@ -23,7 +23,7 @@
                 <p class="ml-4 text-4xl font-bold">Your Articles</p>
             </div>
             <div class="inline-flex items-center pr-4">
-                <a href="/articles/new_article" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Write an article</a>
+                <a href="/blog/new_article" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Write an article</a>
             </div>
         </div>
     </div>
@@ -32,10 +32,10 @@
     <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="/articles/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Drafts</a>
+                <a href="/blog/drafts" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Drafts</a>
             </li>
             <li class="me-2">
-                <a href="/articles/published" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Published</a>
+                <a href="/blog/published" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Published</a>
             </li>
         </ul>
     </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="grid grid-cols-1 content-start w-full mx-4">
                         <div class="inline-flex w-full justify-between">
-                            <a id="title-{{ article[0] }}" href="/articles/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
+                            <a id="title-{{ article[0] }}" href="/blog/edit_article/{{ article[0] }}" class="mb-4 text-gray-800 text-xl font-medium hover:text-gray-600 hover:underline">
                                 {{ article[6] }}
                             </a>
                             <button id="options-button-{{ loop.index0 }}" data-dropdown-toggle="options-menu-{{ loop.index0 }}" data-dropdown-placement="left-start" class="inline-flex justify-end items-center p-2 text-sm font-medium text-center text-gray-900 bg-transparent hover:text-gray-700" type="button">
@@ -99,10 +99,10 @@
                     <div id="options-menu-{{ loop.index0 }}" class="z-10 hidden bg-gray-50 divide-y divide-gray-100 rounded-lg shadow w-44 ">
                         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconHorizontalButton">
                           <li>
-                            <a href="/articles/edit_article/{{ article[0] }}" class="block px-4 py-2 hover:bg-gray-100 ">Edit</a>
+                            <a href="/blog/edit_article/{{ article[0] }}" class="block px-4 py-2 hover:bg-gray-100 ">Edit</a>
                           </li>
                           <li>
-                            <a href="/articles/preview/{{ article[0] }}" class="block px-4 py-2 hover:bg-gray-100 ">Preview</a>
+                            <a href="/blog/preview/{{ article[0] }}" class="block px-4 py-2 hover:bg-gray-100 ">Preview</a>
                           </li>
                         </ul>
                         <div class="py-2">
@@ -127,7 +127,7 @@
 
         $.ajax({
             type: 'POST',
-            url: '/articles/set_published/'+ article_id,
+            url: '/blog/set_published/'+ article_id,
             data: {
                 status: 'publish'
             },
@@ -146,7 +146,7 @@
 
         $.ajax({
             type:'POST',
-            url: '/articles/delete_article/' + article_id,
+            url: '/blog/delete_article/' + article_id,
             success: function(data){
                 article_item.fadeOut('slow')
 

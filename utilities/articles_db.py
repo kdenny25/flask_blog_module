@@ -98,7 +98,8 @@ class ArticleDb:
                             "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (article_id, status, date_created, time_created, title, short_description, psycopg2.Binary(thumbnail), content, text_content))
 
-        self.add_topics(article_id, topics)
+        if topics[0] != '':
+            self.add_topics(article_id, topics)
         self.con.commit()
 
     def update_article(self, article_id, status, date_updated, time_updated, title, short_description, topics, thumbnail, content, text_content):
@@ -186,7 +187,7 @@ class ArticleDb:
     def search_articles(self, status, search):
         self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content " 
                                 "FROM articles AS x "
-                                "JOIN (SELECT article_id, array_agg(topic) as topics "
+                                "LEFT JOIN (SELECT article_id, array_agg(topic) as topics "
                                     "FROM topic_assignments "
                                     "GROUP BY article_id) "
                                     "AS y ON x.article_id = y.article_id "
@@ -198,7 +199,7 @@ class ArticleDb:
     def get_article(self, article_id):
         self.cursor.execute("SELECT x.article_id, status, date_created, time_created, date_updated, time_updated, title, short_description, y.topics, thumbnail, content "
                                 "FROM articles x "
-                                "JOIN ( SELECT article_id, array_agg(topic) as topics "
+                                "LEFT JOIN ( SELECT article_id, array_agg(topic) as topics "
                                     "FROM topic_assignments "
                                     "GROUP BY article_id) "
                                     "AS y ON x.article_id = y.article_id "
@@ -221,6 +222,11 @@ class ArticleDb:
         self.con.commit()
 
     def delete_article(self, article_id):
+        self.cursor.execute("DELETE "
+                            "FROM topic_assignments "
+                            "WHERE article_id=%s;", (article_id, ))
+        self.con.commit()
+
         self.cursor.execute("DELETE "
                             "FROM articles "
                             "WHERE article_id=%s;", (article_id, ))
@@ -273,10 +279,12 @@ class ArticleDb:
 
 
 
-    def get_topics(self):
+    def get_topics(self,):
         """Returns a list of topics and their count"""
         self.cursor.execute("SELECT topic, COUNT(topic) AS topic_count "
                             "FROM topic_assignments "
+                            "LEFT JOIN articles ON articles.article_id = topic_assignments.article_id "
+                            "WHERE articles.status = 'publish' "
                             "GROUP BY topic")
         results = self.cursor.fetchall()
 
@@ -333,7 +341,7 @@ class ArticleDb:
 
         result = self.cursor.fetchone()
 
-        print(result)
+
         if result == None:
             result = (0, False)
 
